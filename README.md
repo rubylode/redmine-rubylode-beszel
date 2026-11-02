@@ -187,6 +187,10 @@ Every colour, size and gap is a CSS custom property on `.rubylode-beszel` (`--ru
 of `assets/stylesheets/rubylode_beszel.css`). A theme restyles the block by setting them; the defaults follow Redmine 7's own
 palette and switch to dark colours with the system's dark mode. There is no JavaScript of its own.
 
+## Troubleshooting
+
+- **A cache problem never breaks the page.** If the cache store cannot be read or written (a cache file owned by another user, a full disk), the plugin logs a warning with the error class and message, treats it as an empty cache and fetches live; the page still answers.
+
 ## Tests
 
     bin/test                                         all unit and integration tests

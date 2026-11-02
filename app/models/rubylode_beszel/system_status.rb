@@ -50,6 +50,14 @@ module RubylodeBeszel
         "rubylode_beszel/systems/#{Digest::SHA256.hexdigest(hub_url.to_s)[0, 16]}"
       end
 
+      # The report for a page. Whatever goes wrong while building it, the page gets a "status unavailable" report and never an error.
+      def safe_report(configuration = Configuration.current)
+        current(configuration).report
+      rescue StandardError => error
+        Rails.logger.warn("Rubylode Beszel: could not build the status block: #{error.class}: #{error.message}")
+        Report.new([], I18n.t("rubylode_beszel.status.unavailable"), true, error.class.name)
+      end
+
       def current(configuration = Configuration.current)
         new(servers: configuration.systems,
             fetch_systems: -> { BeszelHub.from_configuration(configuration).call },
@@ -82,19 +90,37 @@ module RubylodeBeszel
     private
 
     def cached_records
-      payload = @cache.read(@cache_key)
+      payload = read_cache
       if payload.nil?
         begin
           payload = { "systems" => @fetch_systems.call }
-          @cache.write(@cache_key, payload, expires_in: @cache_seconds) if @cache_seconds.positive?
+          write_cache(payload, @cache_seconds) if @cache_seconds.positive?
         rescue BeszelHub::Unavailable => error
           payload = { FAILURE_KEY => error.message }
-          @cache.write(@cache_key, payload, expires_in: @failure_seconds) if @failure_seconds.positive?
+          write_cache(payload, @failure_seconds) if @failure_seconds.positive?
         end
       end
       raise BeszelHub::Unavailable, failure_reason_from(payload) if payload.key?(FAILURE_KEY)
 
       payload["systems"]
+    end
+
+    # A cache that cannot be read or written (a file owned by another user, a full disk) is a miss, not an error.
+    def read_cache
+      @cache.read(@cache_key)
+    rescue StandardError => error
+      log_cache_problem("read", error)
+      nil
+    end
+
+    def write_cache(value, seconds)
+      @cache.write(@cache_key, value, expires_in: seconds)
+    rescue StandardError => error
+      log_cache_problem("write", error)
+    end
+
+    def log_cache_problem(action, error)
+      Rails.logger.warn("Rubylode Beszel: cache #{action} failed, carrying on without it: #{error.class}: #{error.message}")
     end
 
     def failure_reason_from(payload)

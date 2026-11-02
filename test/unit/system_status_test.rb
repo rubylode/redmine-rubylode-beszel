@@ -127,4 +127,66 @@ class RubylodeBeszel::SystemStatusTest < ActiveSupport::TestCase
 
     assert_equal 2, calls
   end
+
+  def status_with_cache(cache, &fetch)
+    RubylodeBeszel::SystemStatus.new(servers: SERVERS, fetch_systems: fetch, cache: cache)
+  end
+
+  test "a cache that cannot be read or written still gives the report from a live fetch, and logs a warning" do
+    calls = 0
+    report = nil
+    log = captured_log do
+      report = status_with_cache(UnwritableCache.new) { calls += 1; [hub_record("web-1"), hub_record("db-1"), hub_record("backup-1")] }.report
+    end
+
+    refute report.unavailable?
+    assert_equal "All servers up", report.summary
+    assert_equal 1, calls
+    assert_includes log, "WARN"
+    assert_includes log, "Errno::EACCES"
+  end
+
+  test "a cache that cannot be written still gives the report from a live fetch" do
+    report = nil
+    log = captured_log { report = status_with_cache(UnwritableCache.new(read: false)) { [hub_record("web-1"), hub_record("db-1", status: "down")] }.report }
+
+    refute report.unavailable?
+    assert_equal "1 of 2 down", report.summary
+    assert_includes log, "cache write failed"
+  end
+
+  test "a failed fetch with a cache that cannot be written is the status unavailable report" do
+    report = nil
+    captured_log do
+      report = status_with_cache(UnwritableCache.new) { raise RubylodeBeszel::BeszelHub::Unavailable, "The Beszel hub answered 503" }.report
+    end
+
+    assert report.unavailable?
+    assert_equal "The Beszel hub answered 503", report.failure_reason
+  end
+
+  test "any error from the cache store is ignored, not only system call errors" do
+    cache = Object.new
+    def cache.read(*) = raise(TypeError, "incompatible marshal file format")
+    def cache.write(*) = raise(IOError, "closed stream")
+    report = nil
+    captured_log { report = status_with_cache(cache) { [hub_record("web-1")] }.report }
+
+    refute report.unavailable?
+  end
+
+  test "safe_report answers status unavailable and logs the class when building the report raises" do
+    configuration = RubylodeBeszel::Configuration.current
+    report = nil
+    log = captured_log do
+      replacing_method(RubylodeBeszel::SystemStatus, :current, ->(*) { raise ArgumentError, "boom" }) do
+        report = RubylodeBeszel::SystemStatus.safe_report(configuration)
+      end
+    end
+
+    assert report.unavailable?
+    assert_equal "Status unavailable", report.summary
+    assert_equal "ArgumentError", report.failure_reason
+    assert_includes log, "ArgumentError: boom"
+  end
 end
