@@ -2,6 +2,11 @@
 
 All notable changes to this plugin. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.0.0] - 2026-11-02
+
+First stable release. The latest status of the servers a Beszel hub monitors, as a wiki macro, a page, a My page block and a partial.
+Its name, author and version are ready to list on redmine.org, and the plugin now shows its project address on Administration, Plugins.
+
 ## [0.1.1] - 2026-11-02
 
 ### Fixed
