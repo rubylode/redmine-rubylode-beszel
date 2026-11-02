@@ -1,0 +1,51 @@
+# A throwaway Redmine 7 to try the plugin in, with a fake Beszel hub next to it. Not a real tracker or a real hub.
+# Start: ruby bin/demo up, then open http://localhost:3013 (admin / admin).
+# The repository is mounted as the plugin, so a code change shows after "ruby bin/demo restart".
+# Wipe it: ruby bin/demo reset
+# Tests: ruby bin/test (runs the "test" service below)
+services:
+  redmine:
+    image: redmine:7.0.2
+    container_name: redmine-beszel-dev
+    ports:
+      - "127.0.0.1:3013:3000"
+    environment:
+      # The image ships without the development gems, so production is the mode it can boot in.
+      RAILS_ENV: production
+      # The names the plugin reads by default. The values are made up and only the fake hub below accepts them.
+      BESZEL_EMAIL: monitor@example.com
+      BESZEL_PASSWORD: demo-password-not-a-secret
+    depends_on:
+      - fake_beszel
+    volumes:
+      - .:/usr/src/redmine/plugins/redmine_rubylode_beszel
+      - redmine-beszel-files:/usr/src/redmine/files
+      - redmine-beszel-sqlite:/usr/src/redmine/sqlite
+
+  # Serves the JSON a Beszel hub (PocketBase) does. Switch what it reports with: ruby bin/demo scenario one_down
+  fake_beszel:
+    image: redmine:7.0.2
+    container_name: fake-beszel-dev
+    ports:
+      - "127.0.0.1:9113:8090"
+    environment:
+      FAKE_BESZEL_EMAIL: monitor@example.com
+      FAKE_BESZEL_PASSWORD: demo-password-not-a-secret
+      FAKE_BESZEL_PORT: "8090"
+    command: ruby /plugin/test/support/fake_beszel_hub.rb
+    volumes:
+      - .:/plugin:ro
+
+  test:
+    build:
+      context: .
+      dockerfile: docker/test.Dockerfile
+    profiles: ["test"]
+    environment:
+      RAILS_ENV: test
+    volumes:
+      - .:/usr/src/redmine/plugins/redmine_rubylode_beszel
+
+volumes:
+  redmine-beszel-files:
+  redmine-beszel-sqlite:

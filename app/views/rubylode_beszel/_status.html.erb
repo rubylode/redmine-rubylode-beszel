@@ -1,0 +1,76 @@
+<%# The server status block. Other plugins can render it: render partial: "rubylode_beszel/status"
+    Optional locals: title (replaces the block title), show_title (false hides it), compact (true gives the
+    small variant for the sides of other pages: no description or last seen column). It draws nothing for a person the
+    settings do not allow, and a hint for administrators while the plugin is not set up. %>
+<% configuration = RubylodeBeszel::Configuration.current %>
+<% if configuration.visible_to?(User.current) %>
+  <% @rubylode_beszel_rendered = true %>
+  <% stylesheet = stylesheet_link_tag("rubylode_beszel", plugin: "redmine_rubylode_beszel") %>
+  <%# A full page takes the stylesheet in its head; an AJAX render (the wiki preview) has no head, so it carries the link itself. %>
+  <% if request.xhr? %><%= stylesheet %><% else %><% content_for :header_tags, stylesheet %><% end %>
+  <% compact = local_assigns.fetch(:compact, false) %>
+  <% block_title = local_assigns[:title].presence || configuration.block_title %>
+  <% show_title = local_assigns.fetch(:show_title, true) %>
+  <% if configuration.configured? %>
+    <% report = RubylodeBeszel::SystemStatus.current(configuration).report %>
+    <div class="rubylode-beszel<%= " is-compact" if compact %>">
+      <% if show_title %><h3 class="rubylode-beszel-title"><%= block_title %></h3><% end %>
+      <p class="rubylode-beszel-summary is-<%= report.summary_state.to_s.dasherize %>"><%= report.summary %></p>
+      <% if report.unavailable? && User.current.admin? %>
+        <p class="rubylode-beszel-hint"><%= l("rubylode_beszel.hints.reason", reason: report.failure_reason) %></p>
+      <% end %>
+      <% if report.systems.any? %>
+        <table class="list rubylode-beszel-table">
+          <thead>
+            <tr>
+              <th><%= l("rubylode_beszel.columns.server") %></th>
+              <th class="rubylode-beszel-description"><%= l("rubylode_beszel.columns.description") %></th>
+              <th><%= l("rubylode_beszel.columns.status") %></th>
+              <th class="rubylode-beszel-last-seen"><%= l("rubylode_beszel.columns.last_seen") %></th>
+              <th><%= l("rubylode_beszel.columns.cpu") %></th>
+              <th><%= l("rubylode_beszel.columns.memory") %></th>
+              <th><%= l("rubylode_beszel.columns.disk") %></th>
+            </tr>
+          </thead>
+          <tbody>
+            <% report.systems.each do |system| %>
+              <tr class="rubylode-beszel-row is-<%= system.state %>">
+                <td class="rubylode-beszel-name"><%= system.name %></td>
+                <td class="rubylode-beszel-description"><%= system.description %></td>
+                <td class="rubylode-beszel-state"><span class="rubylode-beszel-dot" aria-hidden="true"></span><%= l("rubylode_beszel.status.#{system.state}") %></td>
+                <td class="rubylode-beszel-last-seen">
+                  <% if system.last_seen %>
+                    <span title="<%= format_time(system.last_seen) %>"><%= l("rubylode_beszel.last_seen_ago", time: time_ago_in_words(system.last_seen)) %></span>
+                  <% else %>
+                    <%= l("rubylode_beszel.status.no_reading") %>
+                  <% end %>
+                </td>
+                <% { cpu: system.cpu_percent, memory: system.memory_percent, disk: system.disk_percent }.each do |resource, percent| %>
+                  <td class="rubylode-beszel-usage">
+                    <% if percent.nil? %>
+                      <%= l("rubylode_beszel.status.no_reading") %>
+                    <% else %>
+                      <% whole = RubylodeBeszel::UsageLevel.clamp(percent) %>
+                      <span class="rubylode-beszel-bar is-<%= RubylodeBeszel::UsageLevel.for(percent) %>" role="meter" aria-valuemin="0" aria-valuemax="100" aria-valuenow="<%= whole %>" aria-label="<%= l("rubylode_beszel.columns.#{resource}") %>">
+                        <span class="rubylode-beszel-bar-fill" style="width: <%= whole %>%"></span>
+                      </span>
+                      <span class="rubylode-beszel-percent"><%= whole %>%</span>
+                    <% end %>
+                  </td>
+                <% end %>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      <% end %>
+    </div>
+  <% elsif User.current.admin? %>
+    <div class="rubylode-beszel<%= " is-compact" if compact %>">
+      <% if show_title %><h3 class="rubylode-beszel-title"><%= block_title %></h3><% end %>
+      <p class="rubylode-beszel-hint">
+        <%= l("rubylode_beszel.hints.not_configured") %>
+        <%= link_to l("rubylode_beszel.hints.not_configured_link"), plugin_settings_path(RedmineRubylodeBeszel::PLUGIN_ID.to_s) %>
+      </p>
+    </div>
+  <% end %>
+<% end %>

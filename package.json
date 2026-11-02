@@ -1,0 +1,13 @@
+{
+  "name": "redmine-rubylode-beszel",
+  "private": true,
+  "description": "Development tools for the plugin: the README screenshots.",
+  "license": "GPL-2.0-or-later",
+  "type": "module",
+  "scripts": {
+    "screenshots": "node script/demo_screenshots.mjs"
+  },
+  "devDependencies": {
+    "playwright-core": "^1.64.1"
+  }
+}

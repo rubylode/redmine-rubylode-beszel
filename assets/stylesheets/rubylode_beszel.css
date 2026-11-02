@@ -1,0 +1,230 @@
+/*
+ * Rubylode Beszel. Every colour and size is a custom property on .rubylode-beszel, so a theme restyles the
+ * block by setting them. Where the theme already has a variable (Redmine 7 ships --oc-* colours) the default follows it.
+ */
+.rubylode-beszel {
+  --rubylode-beszel-text: var(--oc-gray-9, #212529);
+  --rubylode-beszel-text-muted: var(--oc-gray-6, #6b7480);
+  --rubylode-beszel-border: var(--oc-gray-3, #dee2e6);
+  --rubylode-beszel-header-background: var(--oc-gray-1, #f1f3f5);
+  --rubylode-beszel-row-hover-background: var(--oc-gray-0, #f8f9fa);
+  --rubylode-beszel-up-color: var(--oc-green-8, #2b8a3e);
+  --rubylode-beszel-up-background: #e9f6ec;
+  --rubylode-beszel-down-color: var(--oc-red-8, #c92a2a);
+  --rubylode-beszel-down-background: #fdecec;
+  --rubylode-beszel-unknown-color: var(--oc-gray-6, #868e96);
+  --rubylode-beszel-unavailable-color: var(--oc-orange-9, #a15c07);
+  --rubylode-beszel-unavailable-background: #fff4e0;
+  --rubylode-beszel-link-color: var(--oc-blue-8, #1b4f80);
+  --rubylode-beszel-warning-color: var(--oc-orange-7, #d9730d);
+  --rubylode-beszel-bar-track: var(--oc-gray-2, #e9ecef);
+  --rubylode-beszel-bar-width: 72px;
+  --rubylode-beszel-bar-height: 8px;
+  --rubylode-beszel-dot-size: 10px;
+  --rubylode-beszel-radius: 6px;
+  --rubylode-beszel-gap: 12px;
+  --rubylode-beszel-summary-font-size: 1.05em;
+
+  color: var(--rubylode-beszel-text);
+  margin-bottom: var(--rubylode-beszel-gap);
+}
+
+@media (prefers-color-scheme: dark) {
+  .rubylode-beszel {
+    --rubylode-beszel-text: #e9ecef;
+    --rubylode-beszel-text-muted: #9aa3ad;
+    --rubylode-beszel-border: #3b4148;
+    --rubylode-beszel-header-background: #2a2f35;
+    --rubylode-beszel-row-hover-background: #242a30;
+    --rubylode-beszel-up-color: #69db7c;
+    --rubylode-beszel-up-background: #16301d;
+    --rubylode-beszel-down-color: #ff8787;
+    --rubylode-beszel-down-background: #3b1a1a;
+    --rubylode-beszel-unknown-color: #868e96;
+    --rubylode-beszel-unavailable-color: #ffc078;
+    --rubylode-beszel-unavailable-background: #3a2b12;
+    --rubylode-beszel-link-color: #74c0fc;
+    --rubylode-beszel-warning-color: #ffa94d;
+    --rubylode-beszel-bar-track: #3b4148;
+  }
+}
+
+/* A theme that marks its dark mode on the page wins over the system setting. */
+:root[data-theme="dark"] .rubylode-beszel,
+:root[data-color-scheme="dark"] .rubylode-beszel,
+body.dark .rubylode-beszel {
+  --rubylode-beszel-text: #e9ecef;
+  --rubylode-beszel-text-muted: #9aa3ad;
+  --rubylode-beszel-border: #3b4148;
+  --rubylode-beszel-header-background: #2a2f35;
+  --rubylode-beszel-row-hover-background: #242a30;
+  --rubylode-beszel-up-color: #69db7c;
+  --rubylode-beszel-up-background: #16301d;
+  --rubylode-beszel-down-color: #ff8787;
+  --rubylode-beszel-down-background: #3b1a1a;
+  --rubylode-beszel-unavailable-color: #ffc078;
+  --rubylode-beszel-unavailable-background: #3a2b12;
+  --rubylode-beszel-link-color: #74c0fc;
+  --rubylode-beszel-warning-color: #ffa94d;
+  --rubylode-beszel-bar-track: #3b4148;
+}
+
+.rubylode-beszel a {
+  color: var(--rubylode-beszel-link-color);
+}
+
+.rubylode-beszel-title {
+  margin: 0 0 6px;
+}
+
+.rubylode-beszel-summary {
+  display: inline-block;
+  margin: 0 0 var(--rubylode-beszel-gap);
+  padding: 4px 12px;
+  border-radius: var(--rubylode-beszel-radius);
+  font-size: var(--rubylode-beszel-summary-font-size);
+  font-weight: 600;
+}
+
+.rubylode-beszel-summary.is-all-up {
+  color: var(--rubylode-beszel-up-color);
+  background: var(--rubylode-beszel-up-background);
+}
+
+.rubylode-beszel-summary.is-has-down {
+  color: var(--rubylode-beszel-down-color);
+  background: var(--rubylode-beszel-down-background);
+}
+
+.rubylode-beszel-summary.is-unavailable {
+  color: var(--rubylode-beszel-unavailable-color);
+  background: var(--rubylode-beszel-unavailable-background);
+}
+
+.rubylode-beszel-hint {
+  margin: 0 0 var(--rubylode-beszel-gap);
+  color: var(--rubylode-beszel-text-muted);
+}
+
+.rubylode-beszel-table {
+  width: 100%;
+  border: 1px solid var(--rubylode-beszel-border);
+  border-collapse: collapse;
+  background: transparent;
+}
+
+.rubylode-beszel .rubylode-beszel-table th,
+.rubylode-beszel .rubylode-beszel-table td {
+  padding: 6px 10px;
+  border-bottom: 1px solid var(--rubylode-beszel-border);
+  text-align: left;
+  color: var(--rubylode-beszel-text);
+}
+
+.rubylode-beszel-table thead th {
+  background: var(--rubylode-beszel-header-background);
+}
+
+.rubylode-beszel-table tbody tr:hover td {
+  background: var(--rubylode-beszel-row-hover-background);
+}
+
+.rubylode-beszel .rubylode-beszel-table td.rubylode-beszel-description {
+  color: var(--rubylode-beszel-text-muted);
+}
+
+.rubylode-beszel-last-seen {
+  white-space: nowrap;
+  color: var(--rubylode-beszel-text-muted);
+}
+
+.rubylode-beszel-usage {
+  white-space: nowrap;
+}
+
+.rubylode-beszel-bar {
+  display: inline-block;
+  width: var(--rubylode-beszel-bar-width);
+  height: var(--rubylode-beszel-bar-height);
+  margin-right: 6px;
+  border-radius: var(--rubylode-beszel-bar-height);
+  background: var(--rubylode-beszel-bar-track);
+  vertical-align: middle;
+  overflow: hidden;
+}
+
+.rubylode-beszel-bar-fill {
+  display: block;
+  height: 100%;
+  background: var(--rubylode-beszel-up-color);
+}
+
+.rubylode-beszel-bar.is-warning .rubylode-beszel-bar-fill {
+  background: var(--rubylode-beszel-warning-color);
+}
+
+.rubylode-beszel-bar.is-critical .rubylode-beszel-bar-fill {
+  background: var(--rubylode-beszel-down-color);
+}
+
+.rubylode-beszel-bar.is-critical + .rubylode-beszel-percent {
+  color: var(--rubylode-beszel-down-color);
+  font-weight: 600;
+}
+
+.rubylode-beszel-row.is-down .rubylode-beszel-bar,
+.rubylode-beszel-row.is-paused .rubylode-beszel-bar {
+  opacity: 0.45;
+}
+
+.rubylode-beszel-state {
+  white-space: nowrap;
+}
+
+.rubylode-beszel-dot {
+  display: inline-block;
+  width: var(--rubylode-beszel-dot-size);
+  height: var(--rubylode-beszel-dot-size);
+  margin-right: 6px;
+  border-radius: 50%;
+  background: var(--rubylode-beszel-unknown-color);
+}
+
+.rubylode-beszel-row.is-up .rubylode-beszel-dot {
+  background: var(--rubylode-beszel-up-color);
+}
+
+.rubylode-beszel-row.is-down .rubylode-beszel-dot {
+  background: var(--rubylode-beszel-down-color);
+}
+
+.rubylode-beszel-row.is-down .rubylode-beszel-state {
+  color: var(--rubylode-beszel-down-color);
+  font-weight: 600;
+}
+
+.rubylode-beszel-row.is-paused .rubylode-beszel-state,
+.rubylode-beszel-row.is-unknown .rubylode-beszel-state {
+  color: var(--rubylode-beszel-text-muted);
+}
+
+/* The small variant, for the sides of other pages. */
+.rubylode-beszel.is-compact .rubylode-beszel-description,
+.rubylode-beszel.is-compact .rubylode-beszel-last-seen {
+  display: none;
+}
+
+.rubylode-beszel.is-compact .rubylode-beszel-table th,
+.rubylode-beszel.is-compact .rubylode-beszel-table td {
+  padding: 4px 8px;
+}
+
+.rubylode-beszel.is-compact {
+  --rubylode-beszel-bar-width: 48px;
+}
+
+@media (max-width: 600px) {
+  .rubylode-beszel-table .rubylode-beszel-description {
+    display: none;
+  }
+}
