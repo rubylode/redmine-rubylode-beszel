@@ -2,9 +2,12 @@
 
 [![tests](https://github.com/rubylode/redmine-rubylode-beszel/actions/workflows/tests.yml/badge.svg)](https://github.com/rubylode/redmine-rubylode-beszel/actions/workflows/tests.yml)
 
-TL;DR: the latest status of the servers a [Beszel](https://beszel.dev) hub monitors, inside [Redmine](https://www.redmine.org):
-up or down, when each was last seen, and CPU, memory and disk usage as simple bars. A wiki macro, a page, a My page block
-and a partial.
+TL;DR: this plugin shows the latest status of the servers a [Beszel](https://beszel.dev) hub monitors inside
+[Redmine](https://www.redmine.org): up or down, when each was last seen, and CPU, memory and disk usage as bars. It comes
+as a wiki macro, a page, a My page block and a partial.
+
+The hub's login stays in environment variables and the plugin only reads. Status: version 1.0.0, Redmine 7 only, tested
+against a fake hub. `docs/roadmap/ROADMAP.md` lists what is not done.
 
 ![The status page, one server down](docs/screenshots/status-one-down.png)
 
@@ -18,9 +21,9 @@ Contents:
 - [How to show the block on other pages](#how-to-show-the-block-on-other-pages)
 - [Try it](#try-it)
 - [Restyling it](#restyling-it)
+- [Troubleshooting](#troubleshooting)
 - [Tests](#tests)
 - [License](#license)
-- [Disclaimer](#disclaimer)
 
 ## What it does
 
@@ -83,15 +86,15 @@ The hub's email and password are never saved in Redmine's database, never shown 
 part of an error message (errors name the problem, not the credential). They are read from environment variables when a
 request is made.
 
-- **Only `BESZEL_...` variables are read.** The settings accept a variable name only if it matches `BESZEL_[A-Z0-9_]*`, and
+- Only `BESZEL_...` variables are read. The settings accept a variable name only if it matches `BESZEL_[A-Z0-9_]*`, and
   the check is made again every time the credentials are read. A name like `SECRET_KEY_BASE` or `DATABASE_PASSWORD` is
   refused when you save the settings, and if it is somehow in the database anyway it is ignored: the credential counts as
   missing and nothing is sent. Otherwise an administrator could point the plugin at one of Redmine's own secrets and a
   hub URL of their choosing.
-- **The credentials go to one host.** They are sent only to the host of the saved hub URL. A redirect is followed only to that
+- The credentials go to one host. They are sent only to the host of the saved hub URL. A redirect is followed only to that
   host or to a host listed under "Other allowed hosts", at most three times; a redirect anywhere else stops the request
   before the credentials are sent again, and the block says "Status unavailable".
-- **https, unless the host is loopback.** A hub URL that starts with `http://` is refused when you save it, and the
+- https is required, unless the host is loopback. A hub URL that starts with `http://` is refused when you save it, and the
   credentials are not sent at runtime, unless the host is `localhost`, `127.0.0.1` or `::1`, or you tick "Allow plain http".
   Tick it only when the hub is on a network you trust (Docker's internal network, a private LAN), because anyone who can
   watch that traffic can read the password.
@@ -101,11 +104,11 @@ request is made.
 
 ## Where it shows
 
-- **Wiki macro:** `{{beszel_status}}`, or `{{beszel_status(title=Our servers)}}`. People who may not see it get nothing where it
+- Wiki macro: `{{beszel_status}}`, or `{{beszel_status(title=Our servers)}}`. People who may not see it get nothing where it
   stands.
-- **Page:** `/beszel_status`.
-- **My page block:** "Server status" in the list of blocks you can add to My page.
-- **Partial**, for other plugins and themes: `render partial: "rubylode_beszel/status"` (locals `title` and `show_title`).
+- Page: `/beszel_status`.
+- My page block: "Server status" in the list of blocks you can add to My page.
+- Partial, for other plugins and themes: `render partial: "rubylode_beszel/status"` (locals `title` and `show_title`).
 
 ![The macro in a wiki page](docs/screenshots/wiki-macro.png)
 
@@ -129,14 +132,18 @@ this table and these snippets too.
 | The top menu | tick the box | Top menu link |
 | A theme or another plugin | render the partial | no |
 
-**The macro** works in anything Redmine formats with its wiki syntax. The welcome text is one of those: Redmine 7.0.2's
+### The macro
+
+It works in anything Redmine formats with its wiki syntax. The welcome text is one of those: Redmine 7.0.2's
 welcome page view renders it with `textilizable`, the same helper that renders wiki pages, news, project and issue
 descriptions and comments.
 
     {{beszel_status}}
     {{beszel_status(title=Our servers)}}
 
-**The path list** takes one pattern per line, drawn as a small version of the block at the top of each matching page:
+### The path list
+
+It takes one pattern per line, drawn as a small version of the block at the top of each matching page:
 
     /issues
     /projects/*/issues
@@ -149,7 +156,9 @@ and `/account` never match a wildcard such as `/*`; to put the block there anywa
 that prefix (`/admin/*`). A page that already shows the block (the macro, the page itself, the My page block) is not given
 a second one.
 
-**The partial**, for a theme or another plugin's view (it draws nothing for people who may not see the block):
+### The partial
+
+For a theme or another plugin's view. It draws nothing for people who may not see the block:
 
     <%= render partial: "rubylode_beszel/status" %>
     <%= render partial: "rubylode_beszel/status", locals: { compact: true, title: "Servers", show_title: false } %>
@@ -157,7 +166,9 @@ a second one.
 Locals, all optional: `title` replaces the block title, `show_title: false` hides it, `compact: true` gives the small variant
 without the description and last seen columns.
 
-**The standalone page** is `/beszel_status`. Link to it from any wiki text with `"Servers":/beszel_status`. Tick "Top
+### The standalone page
+
+The page is `/beszel_status`. Link to it from any wiki text with `"Servers":/beszel_status`. Tick "Top
 menu link" to get it in Redmine's top menu, named like the block title and shown only to the people allowed to see the
 block (a plugin adds a top menu item with `menu :top_menu` in its `init.rb`, which is what the plugin does; the box decides
 whether the item shows).
@@ -189,7 +200,7 @@ palette and switch to dark colours with the system's dark mode. There is no Java
 
 ## Troubleshooting
 
-- **A cache problem never breaks the page.** If the cache store cannot be read or written (a cache file owned by another user, a full disk), the plugin logs a warning with the error class and message, treats it as an empty cache and fetches live; the page still answers.
+If the cache store cannot be read or written (a cache file owned by another user, a full disk), the plugin logs a warning with the error class and message, treats the cache as empty and fetches live. The page still renders.
 
 ## Tests
 
@@ -199,6 +210,8 @@ palette and switch to dark colours with the system's dark mode. There is no Java
 They run in a Redmine 7 image with its test gems (`docker/test.Dockerfile`) against the fake hub in
 `test/support/fake_beszel_hub.rb`, a small Ruby script that answers the two calls the plugin makes with the JSON shapes
 PocketBase uses. It can run on its own: `FAKE_BESZEL_EMAIL=a@example.com FAKE_BESZEL_PASSWORD=x ruby test/support/fake_beszel_hub.rb`.
+
+Pull Requests are welcome!
 
 ## Releasing
 
@@ -210,14 +223,6 @@ The text to paste when listing the plugin on www.redmine.org, and how to read th
 
 GNU General Public License, version 2 or (at your option) any later version, the same as Redmine. See `LICENSE`.
 
-Copyright (C) 2026 Nick Gorbikoff. Each Ruby file carries the same short notice Redmine puts on its own.
+Copyright (C) 2026  Nick Gorbikoff
 
-## Disclaimer
-
-Use it at your own risk. It comes with no warranty of any kind, as the license says: the software is provided "as is",
-without any promise that it works, that it fits your purpose or that it's free of bugs. I'm not liable for any damage,
-data loss or downtime that comes from using it, installing it or removing it.
-
-The plugin only reads from your hub, but it holds a login for it, so read the Security section. Back up your Redmine
-database and try it on a test instance first. I've tested it on Redmine 7.0.2 and the 7.0 stable branch, against a fake hub
-that follows the PocketBase API and Beszel's documented fields, not against every Beszel release.
+No warranty, as the GPL says. The plugin only reads from your hub, but it holds a login for it, so read the Security section and try it on a copy of your tracker first. I tested it on Redmine 7.0.2 and the 7.0 stable branch, against a fake hub that follows the PocketBase API and Beszel's documented fields, not against every Beszel release.

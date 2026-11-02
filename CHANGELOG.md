@@ -4,14 +4,18 @@ All notable changes to this plugin. The format follows [Keep a Changelog](https:
 
 ## [1.0.0] - 2026-11-02
 
-First stable release. The latest status of the servers a Beszel hub monitors, as a wiki macro, a page, a My page block and a partial.
-Its name, author and version are ready to list on redmine.org, and the plugin now shows its project address on Administration, Plugins.
+First stable release.
+
+### Changed
+
+- Show the project address on Administration, Plugins.
+- Set the name, author and version to match the listing on redmine.org.
 
 ## [0.1.1] - 2026-11-02
 
 ### Fixed
 
-- A cache that cannot be read or written (for example a cache file owned by another user) no longer breaks the page: the problem is logged as a warning and the block is built from a live fetch, or shows "Status unavailable".
+- Log a warning instead of failing the page when the cache cannot be read or written (for example a cache file owned by another user). The block is built from a live fetch, or shows "Status unavailable".
 
 ## [0.1.0] - 2026-11-01
 
@@ -19,22 +23,11 @@ First version.
 
 ### Added
 
-- The latest status of the servers a [Beszel](https://beszel.dev) hub monitors: up or down, when each was last seen, and
-  CPU, memory and disk usage as simple bars (amber from 80 percent, red from 90).
-- Four ways to show it: the wiki macro `{{beszel_status}}`, the page `/beszel_status`, an optional My page block and a
-  partial (`rubylode_beszel/status`) other plugins can render.
-- Down servers first, a summary line ("All servers up" or "N of M down"), and "Status unavailable" while the page
-  keeps rendering when the hub cannot be asked.
-- Plugin settings: hub URL, the names of the environment variables that hold the sign-in email and password, an optional
-  list of servers with friendly names (`Name | system name in Beszel | Description`), cache seconds (60), failure cache
-  seconds (30), timeout seconds (2), block title, who may see it, plain http and other allowed hosts.
-- The credentials are never saved, shown or logged: they come from environment variables named `BESZEL_...`, are sent only to
-  the host of the hub URL, over https unless the host is loopback or plain http is allowed, and never follow a redirect to
-  another host.
-- Where the block shows is a setting: the welcome page (left or right column), My page, the project Overview page (left or
-  right column), a top menu link, and a list of path patterns (`*` wildcard, query strings ignored, never the admin, settings
-  or sign-in pages unless listed) drawn as a compact variant. All of them honour the permission setting and share the cache.
-- Help on the settings page and in the README: a place, how, needs-a-setting table with copy-paste snippets for the macro in
-  wiki pages, news, descriptions and the welcome text, the My page block, the path list, the partial and the standalone page.
-- A fake Beszel hub in `test/support` for the demo and the tests, a throwaway Redmine on port 3013 (`bin/demo`), unit and
-  integration tests, CI and screenshots.
+- The latest status of the servers a [Beszel](https://beszel.dev) hub monitors: up or down, when each was last seen, and CPU, memory and disk usage as bars (amber from 80 percent, red from 90).
+- A `{{beszel_status}}` wiki macro, a page at `/beszel_status`, an optional My page block and a partial (`rubylode_beszel/status`) for other plugins.
+- Down servers first, and a summary line ("All servers up" or "N of M down"). When the hub cannot be asked the block says "Status unavailable" and the page keeps rendering.
+- Settings: hub URL, the names of the environment variables that hold the sign-in email and password, an optional list of servers with friendly names (`Name | system name in Beszel | Description`), cache seconds (60), failure cache seconds (30), timeout seconds (2), block title, who may see it, plain http and other allowed hosts.
+- The credentials come from environment variables named `BESZEL_...`. They go only to the host of the hub URL, over https unless the host is loopback or plain http is allowed, and are never saved, shown or logged. A redirect to another host is not followed.
+- Placements switched in the settings: the welcome page (left or right column), My page, the project Overview page (left or right column), a top menu link and a list of path patterns. Patterns use a `*` wildcard and ignore query strings, and never match the admin, settings or sign-in pages unless listed. They draw a compact variant. Every placement honours the permission setting and shares the cache.
+- Help on the settings page and in the README: a place, how and setting table, with copy-paste snippets for the macro, the My page block, the path list, the partial and the page.
+- A fake Beszel hub in `test/support` for the demo and the tests, a throwaway Redmine on port 3013 (`bin/demo`), unit and integration tests, CI and screenshots.
