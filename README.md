@@ -1,5 +1,7 @@
 # Rubylode Beszel for Redmine
 
+<p><img src="docs/thumbnail.png" alt="Rubylode Beszel plugin" width="160"></p>
+
 [![tests](https://github.com/rubylode/redmine-rubylode-beszel/actions/workflows/tests.yml/badge.svg)](https://github.com/rubylode/redmine-rubylode-beszel/actions/workflows/tests.yml)
 
 TL;DR: this plugin shows the latest status of the servers a [Beszel](https://beszel.dev) hub monitors inside
