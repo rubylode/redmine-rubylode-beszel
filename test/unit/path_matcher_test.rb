@@ -30,7 +30,11 @@ class RubylodeBeszel::PathMatcherTest < ActiveSupport::TestCase
 
   test "a star matches any run of characters" do
     assert match?("/projects/*/issues", "/projects/ecookbook/issues")
-    assert match?("/projects/*/issues", "/projects/a/b/issues")
+    refute match?("/projects/*/issues", "/projects/a/b/issues")
+    assert match?("/projects/**/issues", "/projects/a/b/issues")
+    assert match?("/projects/**", "/projects/a/b/issues")
+    refute match?("/issues/*", "/issues/1/edit")
+    assert match?("/issues/**", "/issues/1/edit")
     refute match?("/projects/*/issues", "/projects/ecookbook/wiki")
     assert match?("/issues/*", "/issues/1")
     assert match?("/wiki*", "/wiki")
@@ -74,7 +78,7 @@ class RubylodeBeszel::PathMatcherTest < ActiveSupport::TestCase
   test "a pattern that starts with a protected prefix does reach it" do
     assert match?("/login", "/login")
     assert match?("/admin/*", "/admin/projects")
-    assert match?("/settings*", "/settings/plugin/x")
+    assert match?("/settings**", "/settings/plugin/x")
     refute match?("/admin/*", "/admin")
     refute match?("/login", "/logout")
   end

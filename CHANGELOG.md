@@ -24,6 +24,7 @@ The settings and the page path follow the Rubylode plugin standard, and the bloc
 - Rename the Ruby modules to `RubylodeBeszel`, with one `RubylodeBeszel::Settings` reader (was `RedmineRubylodeBeszel::Defaults` and `RubylodeBeszel::Configuration`), and move the translations under one `rubylode_beszel` root.
 - Hide the plugin's top menu item, and the "Show in the top menu" setting, when Rubylode Status is installed. The item is the Status plugin's then.
 - Spell the documentation in en-US, and describe the current plugin in the README, the listing notes and the roadmap.
+- Make `*` in a path stand for anything inside one path segment, and `**` for anything including slashes. Saved patterns keep their meaning because each `*` became `**` in the migration (and back on revert).
 
 ### Moved
 

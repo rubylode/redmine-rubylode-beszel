@@ -27,7 +27,7 @@ class RenameSettingsForVersionTwo < ActiveRecord::Migration[6.1]
       if saved.key?("show_on_paths")
         paths = saved.delete("show_on_paths")
         unless saved.key?("matching_page_paths")
-          saved["matching_page_paths"] = paths
+          saved["matching_page_paths"] = widen_wildcards(paths)
           saved["show_on_matching_pages"] = paths.to_s.strip.empty? ? "0" : "1"
         end
       end
@@ -40,13 +40,22 @@ class RenameSettingsForVersionTwo < ActiveRecord::Migration[6.1]
       if saved.key?("matching_page_paths")
         enabled = saved["show_on_matching_pages"].to_s == "1"
         paths = saved.delete("matching_page_paths")
-        saved["show_on_paths"] = enabled ? paths : ""
+        saved["show_on_paths"] = enabled ? narrow_wildcards(paths) : ""
       end
       saved.delete("show_on_matching_pages")
     end
   end
 
   private
+
+  # 1.x let * match slashes; 2.0.0 uses ** for that and * for one segment, so saved patterns keep their meaning.
+  def widen_wildcards(paths)
+    paths.to_s.gsub("*", "**")
+  end
+
+  def narrow_wildcards(paths)
+    paths.to_s.gsub("**", "*")
+  end
 
   def rewrite_saved_settings
     return unless Setting.where(name: SETTING_NAME).exists?

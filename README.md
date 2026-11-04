@@ -132,7 +132,7 @@ The path list takes one pattern per line, drawn as a small version of the block 
     /projects/*/issues
     /wiki*
 
-`*` stands for any text, slashes included. A query string (`?status_id=o`) and a trailing `/` are ignored, so `/issues`
+`*` stands for anything inside one path segment, `**` for anything including slashes. A query string (`?status_id=o`) and a trailing `/` are ignored, so `/issues`
 matches `/issues?set_filter=1`. A pattern must start with `/` and be at most 200 characters, with no `http://` or host
 name; the settings page refuses anything else and names the line. Pages under `/admin`, `/settings`, `/login`, `/logout`
 and `/account` never match a wildcard such as `/*`; to put the block there anyway, list a pattern that itself starts with

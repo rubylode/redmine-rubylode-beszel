@@ -16,7 +16,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 module RubylodeBeszel
-  # The "pages matching these paths" setting: one path pattern per line, "*" matches any run of characters (slashes too),
+  # The "pages matching these paths" setting: one path pattern per line, "*" matches any run of characters inside one path segment, "**" matches anything (slashes too),
   # blank lines and lines starting with # are skipped. A request path is compared without its query string, fragment and
   # trailing slash.
   #
@@ -72,7 +72,14 @@ module RubylodeBeszel
     end
 
     def self.regexp_for(pattern)
-      Regexp.new("\\A#{pattern.split('*', -1).map { |part| Regexp.escape(part) }.join('.*')}\\z")
+      source = pattern.split(/(\*\*|\*)/, -1).map do |part|
+        case part
+        when "**" then ".*"
+        when "*" then "[^/]*"
+        else Regexp.escape(part)
+        end
+      end.join
+      Regexp.new("\\A#{source}\\z")
     end
   end
 end

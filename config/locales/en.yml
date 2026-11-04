@@ -115,7 +115,7 @@ en:
         hint: "Adds a small version of the block to each page whose path matches one of the paths below."
       matching_page_paths:
         label: Paths
-        hint: "One path per line, starting with /. * stands for any text, slashes included. A query string and a trailing slash are ignored. /admin, /settings, /login and /account match only a path that starts with that prefix."
+        hint: "One path per line, starting with /. * stands for anything inside one path segment, ** for anything. A query string and a trailing slash are ignored. /admin, /settings, /login and /account match only a path that starts with that prefix."
         example: |-
           /issues
           /projects/*/issues

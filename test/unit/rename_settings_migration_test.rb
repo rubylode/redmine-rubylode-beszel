@@ -57,6 +57,20 @@ class RubylodeBeszel::RenameSettingsMigrationTest < ActiveSupport::TestCase
     refute saved.key?("show_on_paths")
   end
 
+  test "up turns every * into ** so saved patterns keep their meaning" do
+    save("show_on_paths" => "/projects/*/issues\n/wiki*")
+    migrate(:up)
+
+    assert_equal "/projects/**/issues\n/wiki**", saved["matching_page_paths"]
+  end
+
+  test "down turns ** back into *" do
+    save("matching_page_paths" => "/projects/**/issues\n/wiki**", "show_on_matching_pages" => "1")
+    migrate(:down)
+
+    assert_equal "/projects/*/issues\n/wiki*", saved["show_on_paths"]
+  end
+
   test "up leaves the paths switched off when there were none" do
     save("hub_url" => "https://beszel.example.com", "show_on_paths" => " \n")
     migrate(:up)
