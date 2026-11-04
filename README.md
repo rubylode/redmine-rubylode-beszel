@@ -8,7 +8,7 @@ TL;DR: this plugin shows the latest status of the servers a [Beszel](https://bes
 [Redmine](https://www.redmine.org): up or down, when each was last seen, and CPU, memory and disk usage as bars. It comes
 as a wiki macro, a page, a My page block and a partial.
 
-The hub's login stays in environment variables and the plugin only reads. Status: version 1.1.0, needs Redmine 5.0 or newer, tested
+The hub's login stays in environment variables and the plugin only reads. Status: version 1.1.1, needs Redmine 5.1 or newer, tested
 against a fake hub. `docs/roadmap/ROADMAP.md` lists what is not done.
 
 ![The status page, one server down](docs/screenshots/status-one-down.png)
@@ -44,7 +44,7 @@ All screenshots show the made-up data of the fake hub in `test/support/fake_besz
 
 ## Installation
 
-Redmine 5.0 or newer, and a Beszel hub (a PocketBase app) that Redmine can reach. The plugin adds no table. The folder must be
+Redmine 5.1 or newer, and a Beszel hub (a PocketBase app) that Redmine can reach. The plugin adds no table. The folder must be
 named `redmine_rubylode_beszel`, the same as the plugin id.
 
 1. Put the plugin in your Redmine's `plugins` folder:
@@ -227,4 +227,4 @@ GNU General Public License, version 2 or (at your option) any later version, the
 
 Copyright (C) 2026  Nick Gorbikoff
 
-No warranty, as the GPL says. The plugin only reads from your hub, but it holds a login for it, so read the Security section and try it on a copy of your tracker first. I tested it in CI with the Rubylode plugins' own test suites on Redmine 7.0, 6.1, 6.0, 5.1 and 5.0, against a fake hub that follows the PocketBase API and Beszel's documented fields, not against every Beszel release.
+No warranty, as the GPL says. The plugin only reads from your hub, but it holds a login for it, so read the Security section and try it on a copy of your tracker first. I tested it in CI with the Rubylode plugins' own test suites on Redmine 7.0, 6.1, 6.0 and 5.1, against a fake hub that follows the PocketBase API and Beszel's documented fields, not against every Beszel release.
