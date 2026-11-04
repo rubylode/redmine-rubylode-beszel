@@ -11,17 +11,17 @@ The text to paste at www.redmine.org, Plugins, New plugin. Redmine's "Check for 
 | License | GNU General Public License, version 2 or (at your option) any later version |
 | Author | Rubylode |
 
-## Notes for the first version
+## Notes for this version
 
-Version 1.1.1. The latest status of the servers monitored by a Beszel hub: a wiki macro, a page, a My page block and a partial. Needs Redmine 5.1 or newer. Install and settings are described in the README at https://github.com/rubylode/redmine-rubylode-beszel.
+Version 2.0.0. The latest status of the servers monitored by a Beszel hub: a wiki macro, a page, a My page block and a partial, and a block on the Rubylode Status page. Needs Redmine 5.1 or newer. Upgrading from 1.x: see the 2.0.0 entry in the changelog. Install and settings are described in the README at https://github.com/rubylode/redmine-rubylode-beszel.
 
 ## File to upload
 
-`redmine_rubylode_beszel-1.1.1.zip`, the file the GitHub release workflow publishes when a `v1.1.1` tag is pushed. Upload the same file that is attached to the GitHub release.
+`redmine_rubylode_beszel-2.0.0.zip`, the file the GitHub release workflow publishes when a `v2.0.0` tag is pushed. Upload the same file that is attached to the GitHub release.
 
 ## Checking the result
 
-The name, author and version in the listing must match what the plugin registers (`Rubylode Beszel`, `Rubylode`, `1.1.1`). When they do, Administration, Plugins, Check for updates shows:
+The name, author and version in the listing must match what the plugin registers (`Rubylode Beszel`, `Rubylode`, `2.0.0`). When they do, Administration, Plugins, Check for updates shows:
 
 - a green tick: the installed version is the latest one listed on redmine.org;
 - an amber warning: redmine.org lists a newer version than the installed one;

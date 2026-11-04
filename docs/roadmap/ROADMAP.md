@@ -7,8 +7,15 @@ the hub's credentials.
 
 ## Done
 
-- 0.1.0: the macro, the page, the My page block and the partial; placements (welcome page, My page, Overview, top menu, path list) with help; the settings; the cache and the failure cache; the
-  credential rules (environment variables named `BESZEL_...`, host binding, https); a fake hub; tests; a demo.
+- 2.0.0: settings and the page path follow the Rubylode plugin standard; the block shows on the Rubylode Status page.
+- 1.1.1: needs Redmine 5.1 or newer.
+- 1.0.0: stable release, with the project address and author on the Plugins page.
+- 0.1.1: a cache that cannot be read or written no longer fails the page.
+- 0.1.0: the macro, the page, the My page block and the partial.
+- 0.1.0: placements (welcome page, My page, Overview, top menu, path list) with help on the settings page.
+- 0.1.0: the settings, the cache and the failure cache.
+- 0.1.0: the credential rules (environment variables named `BESZEL_...`, host binding, https).
+- 0.1.0: a fake hub, tests and a demo.
 
 ## Ideas
 
