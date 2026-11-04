@@ -95,7 +95,7 @@ class RubylodeBeszel::StatusWidgetTest < ActiveSupport::TestCase
     data = RubylodeBeszel::StatusWidget.data
 
     assert_equal "unknown", data[:state]
-    assert_equal "Not set up yet", data[:summary]
+    assert_equal "Beszel is not set up yet", data[:summary]
     assert_empty data[:items]
   end
 

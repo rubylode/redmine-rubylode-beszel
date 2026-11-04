@@ -17,7 +17,7 @@
 
 # Version 2.0.0 renames two saved settings and adds one: hub_url is base_url, show_on_paths is matching_page_paths, and
 # show_on_matching_pages switches the paths on. Writes nothing when no settings were ever saved.
-class RenameSettingsForVersionTwo < ActiveRecord::Migration[6.1]
+class RenameBeszelSettingsForVersionTwo < ActiveRecord::Migration[6.1]
   SETTING_NAME = "plugin_redmine_rubylode_beszel".freeze
 
   def up

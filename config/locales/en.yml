@@ -4,7 +4,7 @@ en:
       all_up: All servers up
       some_down: "%{down} of %{known} down"
       unavailable: Status unavailable
-      not_set_up: Not set up yet
+      not_set_up: Beszel is not set up yet
       no_servers: No servers reported
       servers_up:
         one: "%{up} of %{count} server up"

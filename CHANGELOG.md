@@ -11,7 +11,7 @@ The settings and the page path follow the Rubylode plugin standard, and the bloc
 - Register a "Servers" widget with Rubylode Status when that plugin is installed. The widget gives the Status page a state, a summary such as "2 of 3 servers up" and one item per server.
 - Serve the page at `/status/beszel`, with or without Rubylode Status.
 - Say on the settings page and on the plugin's page whether Rubylode Status is installed.
-- A migration (`db/migrate/001_rename_settings_for_version_two.rb`) that moves saved settings to the new keys, and moves them back when reverted. It writes nothing when no settings were saved.
+- A migration (`db/migrate/001_rename_beszel_settings_for_version_two.rb`) that moves saved settings to the new keys, and moves them back when reverted. It writes nothing when no settings were saved.
 
 ### Changed
 

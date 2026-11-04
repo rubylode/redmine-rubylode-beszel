@@ -16,7 +16,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 require_relative "../test_helper"
-require File.expand_path("../../db/migrate/001_rename_settings_for_version_two", __dir__)
+require File.expand_path("../../db/migrate/001_rename_beszel_settings_for_version_two", __dir__)
 
 class RubylodeBeszel::RenameSettingsMigrationTest < ActiveSupport::TestCase
   SETTING_NAME = "plugin_redmine_rubylode_beszel".freeze
@@ -41,7 +41,7 @@ class RubylodeBeszel::RenameSettingsMigrationTest < ActiveSupport::TestCase
   end
 
   def migrate(direction)
-    ActiveRecord::Migration.suppress_messages { RenameSettingsForVersionTwo.new.migrate(direction) }
+    ActiveRecord::Migration.suppress_messages { RenameBeszelSettingsForVersionTwo.new.migrate(direction) }
   end
 
   test "up renames hub_url and show_on_paths, switches the paths on and keeps the rest" do
