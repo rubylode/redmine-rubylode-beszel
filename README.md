@@ -2,7 +2,12 @@
 
 <p><img src="docs/thumbnail.png" alt="Rubylode Beszel plugin" width="160"></p>
 
-[![tests](https://github.com/rubylode/redmine-rubylode-beszel/actions/workflows/tests.yml/badge.svg)](https://github.com/rubylode/redmine-rubylode-beszel/actions/workflows/tests.yml)
+[![tests](https://img.shields.io/github/actions/workflow/status/rubylode/redmine-rubylode-beszel/tests.yml?branch=main&label=tests)](https://github.com/rubylode/redmine-rubylode-beszel/actions/workflows/tests.yml)
+[![security](https://img.shields.io/github/actions/workflow/status/rubylode/redmine-rubylode-beszel/security.yml?branch=main&label=security)](https://github.com/rubylode/redmine-rubylode-beszel/actions/workflows/security.yml)
+[![version](https://img.shields.io/github/v/tag/rubylode/redmine-rubylode-beszel?sort=semver&label=version)](https://github.com/rubylode/redmine-rubylode-beszel/tags)
+[![license](https://img.shields.io/github/license/rubylode/redmine-rubylode-beszel)](https://github.com/rubylode/redmine-rubylode-beszel/blob/main/LICENSE)
+![Redmine](https://img.shields.io/badge/Redmine-5.1%20%7C%206.0%20%7C%206.1%20%7C%207.0-b22222)
+![Ruby](https://img.shields.io/badge/Ruby-3.2%20%7C%203.3%20%7C%203.4%20%7C%204.0-cc342d)
 
 TL;DR: this plugin shows the latest status of the servers a [Beszel](https://beszel.dev) hub monitors inside
 [Redmine](https://www.redmine.org): up or down, when each was last seen, and CPU, memory and disk usage as bars. It comes
