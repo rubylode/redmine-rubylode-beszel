@@ -20,12 +20,12 @@ class RubylodeBeszelStatusController < ApplicationController
   before_action :require_permission_to_see_status
 
   def show
-    @configuration = RubylodeBeszel::Configuration.current
+    @settings = RubylodeBeszel::Settings.current
   end
 
   private
 
   def require_permission_to_see_status
-    deny_access unless RubylodeBeszel::Configuration.current.visible_to?(User.current)
+    deny_access unless RubylodeBeszel::Settings.current.visible_to?(User.current)
   end
 end

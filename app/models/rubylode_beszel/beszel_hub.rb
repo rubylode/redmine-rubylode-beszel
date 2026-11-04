@@ -36,7 +36,7 @@ module RubylodeBeszel
     # A credential whose variable name is not allowed (nil) or not set is read as empty, and the request is never made.
     # The variable is only read when its name starts with BESZEL_ (the configuration returns nil for any other name).
     def self.from_configuration(configuration)
-      new(url: configuration.hub_url,
+      new(url: configuration.base_url,
           email: read_variable(configuration.email_environment_variable),
           password: read_variable(configuration.password_environment_variable),
           timeout_seconds: configuration.timeout_seconds,
@@ -46,7 +46,7 @@ module RubylodeBeszel
     end
 
     def self.read_variable(name)
-      name.to_s.match?(Configuration::ENVIRONMENT_VARIABLE_PATTERN) ? ENV[name].to_s : ""
+      name.to_s.match?(Settings::ENVIRONMENT_VARIABLE_PATTERN) ? ENV[name].to_s : ""
     end
 
     # http_client is called with (method, url, headers, body_or_nil) and returns [status_code, body_text, location_or_nil].

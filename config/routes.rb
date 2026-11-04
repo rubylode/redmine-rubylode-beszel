@@ -15,4 +15,6 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-get "beszel_status", to: "rubylode_beszel_status#show", as: :rubylode_beszel_status
+get "status/beszel", to: "rubylode_beszel_status#show", as: :rubylode_beszel_status
+# The page moved in 2.0.0. The old path redirects for one release.
+get "beszel_status", to: redirect(status: 301) { |_parameters, request| "#{request.script_name}/status/beszel" }

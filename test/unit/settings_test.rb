@@ -17,15 +17,15 @@
 
 require_relative "../test_helper"
 
-class RubylodeBeszel::ConfigurationTest < ActiveSupport::TestCase
+class RubylodeBeszel::SettingsTest < ActiveSupport::TestCase
   def configuration(settings = {})
-    RubylodeBeszel::Configuration.new(settings)
+    RubylodeBeszel::Settings.new(settings)
   end
 
   test "a fresh install has the defaults and is not configured" do
     config = configuration
 
-    assert_equal "", config.hub_url
+    assert_equal "", config.base_url
     assert_equal "BESZEL_EMAIL", config.email_environment_variable
     assert_equal "BESZEL_PASSWORD", config.password_environment_variable
     assert_equal 60, config.cache_seconds
@@ -39,10 +39,10 @@ class RubylodeBeszel::ConfigurationTest < ActiveSupport::TestCase
   end
 
   test "a hub url makes it configured, with no trailing slash" do
-    config = configuration("hub_url" => " https://beszel.example.com/ ")
+    config = configuration("base_url" => " https://beszel.example.com/ ")
 
     assert config.configured?
-    assert_equal "https://beszel.example.com", config.hub_url
+    assert_equal "https://beszel.example.com", config.base_url
   end
 
   test "numbers are clamped and fall back to the defaults when unreadable" do
@@ -99,9 +99,9 @@ class RubylodeBeszel::ConfigurationTest < ActiveSupport::TestCase
   end
 end
 
-class RubylodeBeszel::ConfigurationPlacementTest < ActiveSupport::TestCase
+class RubylodeBeszel::SettingsPlacementTest < ActiveSupport::TestCase
   def configuration(settings = {})
-    RubylodeBeszel::Configuration.new(settings)
+    RubylodeBeszel::Settings.new(settings)
   end
 
   test "no placement is on by default" do
@@ -111,7 +111,8 @@ class RubylodeBeszel::ConfigurationPlacementTest < ActiveSupport::TestCase
     refute config.show_on_my_page?
     refute config.show_on_project_overview?
     refute config.show_in_top_menu?
-    assert_empty config.path_patterns
+    refute config.show_on_matching_pages?
+    assert_empty config.matching_page_patterns
     assert_equal "right", config.welcome_page_column
     assert_equal "right", config.project_overview_column
   end
@@ -127,13 +128,18 @@ class RubylodeBeszel::ConfigurationPlacementTest < ActiveSupport::TestCase
     assert config.show_in_top_menu?
   end
 
-  test "the My page box adds its path in front of the typed list" do
-    config = configuration("show_on_my_page" => "1", "show_on_paths" => "/issues\n/projects/*/issues")
+  test "the typed paths count only when the matching pages box is checked" do
+    paths = "/issues\n/projects/*/issues"
 
-    assert_equal ["/my/page", "/issues", "/projects/*/issues"], config.path_patterns
+    assert_empty configuration("matching_page_paths" => paths).matching_page_patterns
+    assert_equal ["/issues", "/projects/*/issues"], configuration("show_on_matching_pages" => "1", "matching_page_paths" => paths).matching_page_patterns
+  end
+
+  test "the My page box does not add a path any more" do
+    assert_empty configuration("show_on_my_page" => "1").matching_page_patterns
   end
 
   test "bad lines in the typed list are left out of the patterns" do
-    assert_equal ["/issues"], configuration("show_on_paths" => "/issues\nnot a path").path_patterns
+    assert_equal ["/issues"], configuration("show_on_matching_pages" => "1", "matching_page_paths" => "/issues\nnot a path").matching_page_patterns
   end
 end

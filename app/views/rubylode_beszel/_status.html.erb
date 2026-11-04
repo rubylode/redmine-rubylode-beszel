@@ -1,8 +1,9 @@
 <%# The server status block. Other plugins can render it: render partial: "rubylode_beszel/status"
     Optional locals: title (replaces the block title), show_title (false hides it), compact (true gives the
     small variant for the sides of other pages: no description or last seen column). It draws nothing for a person the
-    settings do not allow, and a hint for administrators while the plugin is not set up. %>
-<% configuration = RubylodeBeszel::Configuration.current %>
+    settings do not allow, and a hint for administrators while the plugin is not set up.
+    Rubylode Status passes widget and status: the Status page then draws the title and the summary, and this draws the rest. %>
+<% configuration = RubylodeBeszel::Settings.current %>
 <% if configuration.visible_to?(User.current) %>
   <% @rubylode_beszel_rendered = true %>
   <% stylesheet = stylesheet_link_tag("rubylode_beszel", plugin: "redmine_rubylode_beszel") %>
@@ -10,12 +11,13 @@
   <% if request.xhr? %><%= stylesheet %><% else %><% content_for :header_tags, stylesheet %><% end %>
   <% compact = local_assigns.fetch(:compact, false) %>
   <% block_title = local_assigns[:title].presence || configuration.block_title %>
-  <% show_title = local_assigns.fetch(:show_title, true) %>
+  <% on_status_page = local_assigns.key?(:widget) %>
+  <% show_title = local_assigns.fetch(:show_title, true) && !on_status_page %>
   <% if configuration.configured? %>
     <% report = RubylodeBeszel::SystemStatus.safe_report(configuration) %>
     <div class="rubylode-beszel<%= " is-compact" if compact %>">
       <% if show_title %><h3 class="rubylode-beszel-title"><%= block_title %></h3><% end %>
-      <p class="rubylode-beszel-summary is-<%= report.summary_state.to_s.dasherize %>"><%= report.summary %></p>
+      <% unless on_status_page %><p class="rubylode-beszel-summary is-<%= report.summary_state.to_s.dasherize %>"><%= report.summary %></p><% end %>
       <% if report.unavailable? && User.current.admin? %>
         <p class="rubylode-beszel-hint"><%= l("rubylode_beszel.hints.reason", reason: report.failure_reason) %></p>
       <% end %>
@@ -69,7 +71,7 @@
       <% if show_title %><h3 class="rubylode-beszel-title"><%= block_title %></h3><% end %>
       <p class="rubylode-beszel-hint">
         <%= l("rubylode_beszel.hints.not_configured") %>
-        <%= link_to l("rubylode_beszel.hints.not_configured_link"), plugin_settings_path(RedmineRubylodeBeszel::PLUGIN_ID.to_s) %>
+        <%= link_to l("rubylode_beszel.hints.not_configured_link"), plugin_settings_path(RubylodeBeszel::Settings::PLUGIN_ID.to_s) %>
       </p>
     </div>
   <% end %>

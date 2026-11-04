@@ -76,16 +76,38 @@ class RubylodeBeszel::PlacementsTest < Redmine::IntegrationTest
     assert_select ".splitcontentleft #{BLOCK}"
   end
 
-  test "My page: a small version at the top, drawn once" do
+  test "My page: the default layout has the block for a person who has not arranged their own" do
     configure_plugin("show_on_my_page" => "1")
     log_user("jsmith", "jsmith")
     get "/my/page"
 
-    assert_select "#{BLOCK}.is-compact", 1
-    assert_select "#{BLOCK}.is-compact .rubylode-beszel-summary", text: "1 of 2 down"
+    assert_select "#block-rubylode_beszel_status #{BLOCK} .rubylode-beszel-summary", text: "1 of 2 down"
+    assert_select BLOCK, 1
   end
 
-  test "My page with the box ticked and the block added by hand shows it once" do
+  test "My page: a person with their own arrangement keeps it, and can still add the block" do
+    configure_plugin("show_on_my_page" => "1")
+    preference = User.find(2).pref
+    preference.my_page_layout = { "top" => [], "left" => ["issuesassignedtome"], "right" => [] }
+    preference.save!
+
+    log_user("jsmith", "jsmith")
+    get "/my/page"
+    assert_select BLOCK, 0
+    assert_includes Redmine::MyPage.block_options.map(&:last), "rubylode_beszel_status"
+  end
+
+  test "My page: without the box the default layout does not have the block" do
+    refute_includes Redmine::MyPage.default_layout.values.flatten, "rubylode_beszel_status"
+  end
+
+  test "My page: with the box the default layout has the block once" do
+    configure_plugin("show_on_my_page" => "1")
+
+    assert_equal 1, Redmine::MyPage.default_layout.values.flatten.count("rubylode_beszel_status")
+  end
+
+  test "My page with the box checked and the block in the person's own layout shows it once" do
     configure_plugin("show_on_my_page" => "1")
     preference = User.find(2).pref
     preference.my_page_layout = { "top" => ["rubylode_beszel_status"] }
@@ -99,7 +121,7 @@ class RubylodeBeszel::PlacementsTest < Redmine::IntegrationTest
   end
 
   test "a listed path draws the small block on the matching pages only" do
-    configure_plugin("show_on_paths" => "/issues\n/projects/*/issues")
+    configure_plugin("show_on_matching_pages" => "1", "matching_page_paths" => "/issues\n/projects/*/issues")
     log_user("jsmith", "jsmith")
 
     get "/issues"
@@ -116,7 +138,7 @@ class RubylodeBeszel::PlacementsTest < Redmine::IntegrationTest
   end
 
   test "the compact block leaves out the description and last seen columns by css class, and keeps the bars" do
-    configure_plugin("show_on_paths" => "/issues")
+    configure_plugin("show_on_matching_pages" => "1", "matching_page_paths" => "/issues")
     log_user("jsmith", "jsmith")
     get "/issues"
 
@@ -124,7 +146,7 @@ class RubylodeBeszel::PlacementsTest < Redmine::IntegrationTest
   end
 
   test "a wildcard for everything does not reach the settings page or the sign-in page" do
-    configure_plugin("show_on_paths" => "/*")
+    configure_plugin("show_on_matching_pages" => "1", "matching_page_paths" => "/*")
 
     get "/login"
     assert_response :success
@@ -141,7 +163,7 @@ class RubylodeBeszel::PlacementsTest < Redmine::IntegrationTest
   end
 
   test "a protected path listed explicitly does get the block" do
-    configure_plugin("show_on_paths" => "/login")
+    configure_plugin("show_on_matching_pages" => "1", "matching_page_paths" => "/login")
 
     get "/login"
     assert_select BLOCK, 0, "an anonymous visitor is never shown the block"
@@ -152,7 +174,7 @@ class RubylodeBeszel::PlacementsTest < Redmine::IntegrationTest
   end
 
   test "a page that already has the block through the macro does not get a second one from the path list" do
-    configure_plugin("show_on_paths" => "/projects/*")
+    configure_plugin("show_on_matching_pages" => "1", "matching_page_paths" => "/projects/*")
     page = WikiPage.new(wiki: Project.find(1).wiki, title: "Status_once")
     page.content = WikiContent.new(text: "{{beszel_status}}", author: User.find(2))
     page.save!
@@ -164,16 +186,16 @@ class RubylodeBeszel::PlacementsTest < Redmine::IntegrationTest
   end
 
   test "the standalone page with its own path in the list is not doubled" do
-    configure_plugin("show_on_paths" => "/beszel_status")
+    configure_plugin("show_on_matching_pages" => "1", "matching_page_paths" => "/status/beszel")
     log_user("jsmith", "jsmith")
-    get "/beszel_status"
+    get "/status/beszel"
 
     assert_select BLOCK, 1
   end
 
   test "every placement honours the who-may-see-it setting" do
     configure_plugin("show_on_welcome_page" => "1", "show_on_project_overview" => "1", "show_on_my_page" => "1",
-                     "show_on_paths" => "/issues", "show_in_top_menu" => "1", "visibility" => "admins")
+                     "show_on_matching_pages" => "1", "matching_page_paths" => "/issues", "show_in_top_menu" => "1", "visibility" => "admins")
     log_user("jsmith", "jsmith")
     %w[/ /projects/ecookbook /my/page /issues].each do |path|
       get path
@@ -185,14 +207,14 @@ class RubylodeBeszel::PlacementsTest < Redmine::IntegrationTest
     log_user("admin", "admin")
     get "/"
     assert_select BLOCK, 1
-    assert_select "#top-menu a[href=?]", "/beszel_status", text: "Servers"
+    assert_select "#top-menu a[href=?]", "/status/beszel", text: "Servers"
   end
 
   test "every placement uses the cache: the hub is asked once for a page with several placements" do
     server = FakeBeszelHub.new(email: "a@example.com", password: "p").start
     ENV["BESZEL_EMAIL"] = "a@example.com"
     ENV["BESZEL_PASSWORD"] = "p"
-    configure_plugin("hub_url" => server.hub_url, "show_on_welcome_page" => "1", "show_on_paths" => "/")
+    configure_plugin("base_url" => server.hub_url, "show_on_welcome_page" => "1", "show_on_matching_pages" => "1", "matching_page_paths" => "/")
     log_user("jsmith", "jsmith")
     3.times { get "/" }
 
@@ -204,7 +226,7 @@ class RubylodeBeszel::PlacementsTest < Redmine::IntegrationTest
   end
 
   test "an unconfigured plugin shows administrators the hint on a placement and everyone else nothing" do
-    configure_plugin("hub_url" => "", "show_on_welcome_page" => "1")
+    configure_plugin("base_url" => "", "show_on_welcome_page" => "1")
     log_user("jsmith", "jsmith")
     get "/"
     assert_select BLOCK, 0
@@ -220,7 +242,7 @@ class RubylodeBeszel::PlacementsTest < Redmine::IntegrationTest
     log_user("jsmith", "jsmith")
     get "/"
 
-    assert_select "#top-menu a[href=?]", "/beszel_status", text: "Company servers"
+    assert_select "#top-menu a[href=?]", "/status/beszel", text: "Company servers"
   end
 
   test "the wiki preview carries the stylesheet itself because it has no head" do

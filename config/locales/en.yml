@@ -1,15 +1,20 @@
 en:
   rubylode_beszel:
-    plugin_name: Rubylode Beszel
     status:
       all_up: All servers up
       some_down: "%{down} of %{known} down"
       unavailable: Status unavailable
+      not_set_up: Not set up yet
+      no_servers: No servers reported
+      servers_up:
+        one: "%{up} of %{count} server up"
+        other: "%{up} of %{count} servers up"
+      usage_detail: "%{resource} %{percent}%"
       up: Up
       down: Down
       paused: Paused
       unknown: Unknown
-      no_reading: "–"
+      no_reading: n/a
     last_seen_ago: "%{time} ago"
     columns:
       server: Server
@@ -20,19 +25,22 @@ en:
       memory: Memory
       disk: Disk
     hints:
-      not_configured: "Server status is not set up yet. Add the Beszel hub URL in the plugin settings."
+      not_configured: "The block is not set up yet. Add the Beszel address in the plugin settings."
       not_configured_link: Open the settings
       reason: "Why: %{reason}"
-    page_title: Server status
+    status_plugin:
+      missing_html: "Install %{link} to see this with the other status blocks on one page."
+      installed_html: "Rubylode Status is installed, so this block shows on the %{link}."
+      status_page: Status page
     errors:
       line_field_count: "needs %{count} fields separated by |, found %{found}"
       line_name_missing: the name is empty
-      line_prefix: "Servers, line %{line_number}: %{message}"
-      hub_url_invalid: The Beszel hub URL must start with http:// or https://
-      environment_variable_invalid: "%{field} must start with BESZEL_ and use only capital letters, digits and underscores (Redmine's own secrets cannot be named here)"
-      plain_http_refused: "A plain http:// hub URL is only accepted for localhost; use https://, or tick the box that allows plain http on an internal network"
-      allowed_hosts_invalid: "The other allowed hosts must be host names, separated by spaces, commas or new lines"
-      insecure_connection: "The hub URL is not https, so the credentials are not sent (see the plain http setting)"
+      line_prefix: "Servers to show, line %{line_number}: %{message}"
+      base_url_invalid: The Beszel address must start with http:// or https://
+      environment_variable_invalid: "%{field} must start with BESZEL_ and use only capital letters, digits and underscores. Redmine's own secrets cannot be named here."
+      plain_http_refused: 'A plain http:// Beszel address is only accepted for localhost. Use https://, or check "Allow plain http" if the hub is on a network you trust.'
+      allowed_hosts_invalid: "Allowed hosts must be host names, separated by spaces, commas or new lines"
+      insecure_connection: 'The Beszel address is not https, so the credentials are not sent. Use https://, or check "Allow plain http".'
       redirect_refused: "The hub redirected to a host that is not allowed, so the credentials were not sent there"
       number_invalid: "%{field} must be a whole number of at least %{minimum}"
       visibility_invalid: Who may see the block must be one of the listed choices
@@ -43,66 +51,94 @@ en:
       hub_unreachable: "The Beszel hub could not be reached (%{error_class})"
       hub_answer_unreadable: The Beszel hub gave an answer that could not be read
       hub_did_not_answer: The Beszel hub did not answer
-      column_invalid: The welcome page and Overview columns must be left or right
-      path_line_prefix: "Show on pages, line %{line_number}: %{message}"
+      column_invalid: The welcome page and project Overview columns must be left or right
+      path_line_prefix: "Paths, line %{line_number}: %{message}"
       path_must_start_with_slash: "a path must start with / (for example /issues)"
       path_has_host: "give the path only, without http:// or a host name"
-      path_has_query: "leave out the ? and # parts, query strings are ignored"
+      path_has_query: "leave out the ? and # parts; query strings are ignored"
       path_has_space: "a path cannot contain spaces"
       path_too_long: "a path can have at most %{maximum} characters"
       path_too_many: "at most %{maximum} paths can be listed"
     settings:
-      hub_url: Beszel hub URL
-      hub_url_hint: "For example https://beszel.example.com. Empty means the block is not shown to anyone but administrators, who get a hint."
-      email_environment_variable: Name of the email environment variable
-      email_environment_variable_hint: "The email of a Beszel user who may read the systems. It is never saved here: put it in this environment variable before Redmine starts."
-      password_environment_variable: Name of the password environment variable
-      password_environment_variable_hint: "The password of that user. It is never saved here either."
-      allow_plain_http: Allow plain http
-      allow_plain_http_hint: "Credentials go over https only, except to localhost. Tick this only when the hub is on an internal network you trust, so an http:// URL may carry them."
-      allowed_hosts: Other allowed hosts
-      allowed_hosts_hint: "Credentials are sent only to the host of the hub URL. If the hub redirects to another host (a second name for the same hub), list that host here. Optional."
+      base_url:
+        label: Beszel address
+        hint: "The address of your Beszel hub, for example https://beszel.example.com. Empty means the block is shown to administrators only, with a hint."
+      email_environment_variable:
+        label: Email variable
+        hint: "The name of the environment variable that holds the email of a Beszel user who may read the systems. The email is never saved here. Set it before Redmine starts. The name must start with BESZEL_."
+      password_environment_variable:
+        label: Password variable
+        hint: "The name of the environment variable that holds that user's password. The password is never saved here. Set it before Redmine starts. The name must start with BESZEL_."
+      allowed_hosts:
+        label: Allowed hosts
+        hint: "Hosts that may receive the credentials besides the address above, separated by spaces or commas. Redirects to other hosts are never followed."
+      allow_plain_http:
+        label: Allow plain http
+        hint: "Check this only when the hub is on a network you trust. The credentials then travel unencrypted."
+      systems:
+        label: Servers to show
+        hint: "One server per line: Name | system name in Beszel | Description. The last two may be empty, and an empty system name means the same as Name. Lines starting with # are ignored. Empty means every system the hub has is shown."
+        example: |-
+          Web | web-1 | The public site
+          Database | db-1 | Primary database
+      cache_seconds:
+        label: Cache seconds
+        hint: "The Beszel hub is asked at most once in this many seconds."
+      failure_cache_seconds:
+        label: Failure cache seconds
+        hint: "After a failed answer the Beszel hub is left alone for this many seconds."
+      timeout_seconds:
+        label: Timeout seconds
+        hint: "A request to the Beszel hub is given up after this many seconds."
+      block_title:
+        label: Block title
+        hint: "The heading of the block and the name of the top menu link."
+      visibility:
+        label: Who may see the block
+        logged_in: Everyone who is signed in
+        admins: Administrators only
+      show_on_welcome_page:
+        label: Welcome page
+        hint: "Adds the block to Redmine's home page for the people who may see it."
+      welcome_page_column:
+        label: Column
+      show_on_my_page:
+        label: My page
+        hint: "Adds the block to the default My page, for people who have not arranged their own. Everyone can still add it from the block list."
+      show_on_project_overview:
+        label: Project Overview page
+        hint: "Adds the block to every project's Overview page."
+      project_overview_column:
+        label: Column
+      show_on_matching_pages:
+        label: Pages matching these paths
+        hint: "Adds a small version of the block to each page whose path matches one of the paths below."
+      matching_page_paths:
+        label: Paths
+        hint: "One path per line, starting with /. * stands for any text, slashes included. A query string and a trailing slash are ignored. /admin, /settings, /login and /account match only a path that starts with that prefix."
+        example: |-
+          /issues
+          /projects/*/issues
+      show_in_top_menu:
+        label: Show in the top menu
+        hint: "Adds a link to /status/beszel to the top menu, for the people who may see the block."
+    settings_page:
+      column_left: Left
+      column_right: Right
       variable_is_not_allowed: "not allowed: the name must start with BESZEL_"
       variable_is_set: "set in the environment"
       variable_is_not_set: "not set in the environment"
-      systems: Servers
-      systems_hint: "Optional. One server per line: Name | system name in Beszel | Description. The Beszel name may be empty when it matches the name, the description too. Lines starting with # are ignored. Leave it empty to show every system the hub has."
-      systems_example: |-
-        Web | web-1 | The public site
-        Database | db-1 | Primary database
-      cache_seconds: Cache seconds
-      cache_seconds_hint: "The hub is asked at most once in this many seconds."
-      failure_cache_seconds: Failure cache seconds
-      failure_cache_seconds_hint: "After a failed answer the hub is left alone for this long."
-      timeout_seconds: Timeout seconds
-      block_title: Block title
-      visibility: Who may see the block
-      visibility_logged_in: Everyone who is signed in
-      visibility_admins: Administrators only
       placements_heading: Show the block on
-      placements_intro: "Besides the macro, the page and the My page block, the block can be added to these pages. Every place follows the setting above for who may see it, and shares the cache, so the hub is still asked once in the cache window."
-      show_on_welcome_page: Welcome page
-      show_on_my_page: My page
-      show_on_my_page_hint: "A small version at the top of My page, in addition to the block you can add yourself."
-      show_on_project_overview: Project Overview page
-      show_in_top_menu: Top menu link
-      show_in_top_menu_hint: "Adds a link to the page /beszel_status in the top menu, named like the block title."
-      column_left: Left column
-      column_right: Right column
-      show_on_paths: Pages matching these paths
-      show_on_paths_hint: "One path per line; * stands for any text. Query strings and a trailing / are ignored. A small version of the block is drawn at the top of each matching page. Pages under /admin, /settings, /login and /account only match a path that itself starts with that prefix."
-      show_on_paths_example: |-
-        /issues
-        /projects/*/issues
+      placements_intro: 'Besides the macro, the page and the My page block, the block can go on these pages. All of them follow "Who may see the block" and share one cache.'
       help_heading: How to show the block on other pages
       help_place: Where
       help_how: How
       help_needs_setting: Needs a setting
-      help_macro_intro: "Paste the macro into any text that Redmine formats with its wiki syntax; add a title to override the block title:"
-      help_welcome_text: "The welcome text (Administration, Settings, General) is rendered with textilizable like a wiki page, so the macro works there too. In Redmine 7.0.2 the welcome page view calls textilizable on the welcome text, and news, project descriptions, issue descriptions and comments are rendered the same way."
+      help_macro_intro: "Paste the macro into any text that Redmine formats with its wiki syntax. Add a title to override the block title:"
+      help_welcome_text: "The welcome text (Administration, Settings, General) is formatted like a wiki page, so the macro works there too. So it does in news, project and issue descriptions and comments."
       help_partial_intro: "In a theme or another plugin's view, render the partial. It draws nothing for people who may not see the block:"
       help_partial_locals: "Locals, all optional: title (text that replaces the block title), show_title (false hides the title), compact (true gives the small variant without description and last seen columns)."
-      help_page_link: "The standalone page is /beszel_status. Link to it from any wiki text with:"
+      help_page_link: "The standalone page is /status/beszel. Link to it from any wiki text with:"
       help_rows:
         wiki:
           place: Wiki pages
@@ -114,7 +150,7 @@ en:
           setting: "No"
         descriptions:
           place: Project descriptions
-          how: "The macro {{beszel_status}}, it then shows on the project's Overview page"
+          how: "The macro {{beszel_status}}; it then shows on the project's Overview page"
           setting: "No"
         welcome_text:
           place: "The welcome text (Administration, Settings, General)"
@@ -122,36 +158,36 @@ en:
           setting: "No"
         my_page_block:
           place: "My page, as a block you move around"
-          how: "Pick Server status in the Add list of My page"
+          how: "Pick Servers in the Add list of My page"
           setting: "No"
         welcome_page:
           place: Welcome page, left or right column
-          how: Tick the box above
+          how: 'Check "Welcome page"'
           setting: "Welcome page"
         my_page:
-          place: My page, a small version at the top
-          how: Tick the box above
+          place: The default My page
+          how: 'Check "My page"'
           setting: "My page"
         overview:
           place: Project Overview page, left or right column
-          how: Tick the box above
+          how: 'Check "Project Overview page"'
           setting: "Project Overview page"
         paths:
           place: Any other page, such as the issue list
-          how: "List its path, for example /issues or /projects/*/issues"
+          how: 'Check "Pages matching these paths" and list its path, for example /issues or /projects/*/issues'
           setting: "Pages matching these paths"
         page:
           place: Its own page
-          how: "Open /beszel_status"
+          how: "Open /status/beszel"
           setting: "No"
         top_menu:
           place: The top menu
-          how: Tick the box above
-          setting: "Top menu link"
+          how: 'Check "Show in the top menu"'
+          setting: "Show in the top menu"
         partial:
           place: A theme or another plugin
           how: 'render partial: "rubylode_beszel/status"'
           setting: "No"
   my:
     blocks:
-      rubylode_beszel_status: Server status
+      rubylode_beszel_status: Servers

@@ -32,8 +32,8 @@ module RubylodeBeszel
 
     def errors
       messages = []
-      messages << t("hub_url_invalid") unless blank_or_web_address?("hub_url")
-      VARIABLE_FIELDS.each { |key| messages << t("environment_variable_invalid", field: I18n.t("rubylode_beszel.settings.#{key}")) unless environment_variable_valid?(key) }
+      messages << t("base_url_invalid") unless blank_or_web_address?("base_url")
+      VARIABLE_FIELDS.each { |key| messages << t("environment_variable_invalid", field: I18n.t("rubylode_beszel.settings.#{key}.label")) unless environment_variable_valid?(key) }
       messages << t("plain_http_refused") unless plain_http_allowed?
       messages << t("allowed_hosts_invalid") unless allowed_hosts_valid?
       messages << t("column_invalid") unless columns_valid?
@@ -63,12 +63,12 @@ module RubylodeBeszel
 
     def environment_variable_valid?(key)
       name = @settings[key].to_s.strip
-      name.empty? || name.match?(Configuration::ENVIRONMENT_VARIABLE_PATTERN)
+      name.empty? || name.match?(Settings::ENVIRONMENT_VARIABLE_PATTERN)
     end
 
-    # An http:// hub is only accepted on a loopback host, or when the "allow plain http" box is ticked.
+    # An http:// hub is only accepted on a loopback host, or when "Allow plain http" is checked.
     def plain_http_allowed?
-      url = @settings["hub_url"].to_s.strip
+      url = @settings["base_url"].to_s.strip
       return true unless url.match?(/\Ahttp:/i)
 
       @settings["allow_plain_http"].to_s == "1" || SecureTransport.loopback_host?(URI.parse(url).host)
@@ -77,21 +77,21 @@ module RubylodeBeszel
     end
 
     def allowed_hosts_valid?
-      Configuration.new("allowed_hosts" => @settings["allowed_hosts"]).allowed_hosts.all? { |host| host.match?(Configuration::HOST_PATTERN) }
+      Settings.new("allowed_hosts" => @settings["allowed_hosts"]).allowed_hosts.all? { |host| host.match?(Settings::HOST_PATTERN) }
     end
 
     def columns_valid?
-      %w[welcome_page_column project_overview_column].all? { |key| !@settings.key?(key) || Configuration::COLUMNS.include?(@settings[key].to_s) }
+      %w[welcome_page_column project_overview_column].all? { |key| !@settings.key?(key) || Settings::COLUMNS.include?(@settings[key].to_s) }
     end
 
     def path_errors
-      PathMatcher.parse(@settings["show_on_paths"]).errors.map do |line_error|
+      PathMatcher.parse(@settings["matching_page_paths"]).errors.map do |line_error|
         line_error.line_number.zero? ? line_error.message : t("path_line_prefix", line_number: line_error.line_number, message: line_error.message)
       end
     end
 
     def visibility_valid?
-      !@settings.key?("visibility") || Configuration::VISIBILITIES.include?(@settings["visibility"].to_s)
+      !@settings.key?("visibility") || Settings::VISIBILITIES.include?(@settings["visibility"].to_s)
     end
 
     def number_errors
@@ -100,7 +100,7 @@ module RubylodeBeszel
         next if value.empty?
 
         valid = value.match?(/\A\d+\z/) && value.to_i >= minimum
-        t("number_invalid", field: I18n.t("rubylode_beszel.settings.#{key}"), minimum: minimum) unless valid
+        t("number_invalid", field: I18n.t("rubylode_beszel.settings.#{key}.label"), minimum: minimum) unless valid
       end
     end
 

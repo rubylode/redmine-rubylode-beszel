@@ -36,7 +36,7 @@ class RubylodeBeszel::CredentialSecrecyTest < Redmine::IntegrationTest
     @other = FakeBeszelHub.new(email: SAMPLE_EMAIL, password: SAMPLE_PASSWORD).start
     ENV[EMAIL_VARIABLE] = SAMPLE_EMAIL
     ENV[PASSWORD_VARIABLE] = SAMPLE_PASSWORD
-    configure_plugin("hub_url" => @server.hub_url, "email_environment_variable" => EMAIL_VARIABLE,
+    configure_plugin("base_url" => @server.hub_url, "email_environment_variable" => EMAIL_VARIABLE,
                      "password_environment_variable" => PASSWORD_VARIABLE, "cache_seconds" => "60")
     @log_path = Rails.root.join("log", "#{Rails.env}.log")
     @log_offset = File.exist?(@log_path) ? File.size(@log_path) : 0
@@ -65,7 +65,7 @@ class RubylodeBeszel::CredentialSecrecyTest < Redmine::IntegrationTest
 
   test "with the right credentials the page works and no credential is in the html or the log" do
     log_user("admin", "admin")
-    get "/beszel_status"
+    get "/status/beszel"
 
     assert_select ".rubylode-beszel-summary", text: "All servers up"
     refute_leaks SAMPLE_EMAIL, SAMPLE_PASSWORD, FakeBeszelHub::TOKEN
@@ -75,7 +75,7 @@ class RubylodeBeszel::CredentialSecrecyTest < Redmine::IntegrationTest
     ENV[PASSWORD_VARIABLE] = "wrong-password-also-secret-55"
 
     log_user("admin", "admin")
-    get "/beszel_status"
+    get "/status/beszel"
 
     assert_select ".rubylode-beszel-summary", text: "Status unavailable"
     assert_select ".rubylode-beszel-hint", text: /refused the sign-in/
@@ -97,7 +97,7 @@ class RubylodeBeszel::CredentialSecrecyTest < Redmine::IntegrationTest
 
   test "the hub is asked once for two page loads within the cache window" do
     log_user("jsmith", "jsmith")
-    2.times { get "/beszel_status" }
+    2.times { get "/status/beszel" }
 
     assert_equal 1, @server.request_count
     assert_equal 1, @server.sign_in_count
@@ -105,11 +105,11 @@ class RubylodeBeszel::CredentialSecrecyTest < Redmine::IntegrationTest
 
   test "a variable outside the BESZEL_ prefix is ignored at runtime: the credential counts as missing and the hub is never asked" do
     ENV["SECRET_KEY_BASE"] = SAMPLE_PASSWORD
-    configure_plugin("hub_url" => @server.hub_url, "email_environment_variable" => EMAIL_VARIABLE,
+    configure_plugin("base_url" => @server.hub_url, "email_environment_variable" => EMAIL_VARIABLE,
                      "password_environment_variable" => "SECRET_KEY_BASE")
 
     log_user("admin", "admin")
-    get "/beszel_status"
+    get "/status/beszel"
 
     assert_select ".rubylode-beszel-summary", text: "Status unavailable"
     assert_equal 0, @server.sign_in_count
@@ -119,11 +119,11 @@ class RubylodeBeszel::CredentialSecrecyTest < Redmine::IntegrationTest
 
   test "DATABASE_PASSWORD as the email variable is ignored at runtime as well" do
     ENV["DATABASE_PASSWORD"] = SAMPLE_EMAIL
-    configure_plugin("hub_url" => @server.hub_url, "email_environment_variable" => "DATABASE_PASSWORD",
+    configure_plugin("base_url" => @server.hub_url, "email_environment_variable" => "DATABASE_PASSWORD",
                      "password_environment_variable" => PASSWORD_VARIABLE)
 
     log_user("admin", "admin")
-    get "/beszel_status"
+    get "/status/beszel"
 
     assert_select ".rubylode-beszel-summary", text: "Status unavailable"
     assert_empty @server.seen_requests
@@ -133,7 +133,7 @@ class RubylodeBeszel::CredentialSecrecyTest < Redmine::IntegrationTest
     @server.redirect_to = "http://localhost:#{@other.port}"
 
     log_user("admin", "admin")
-    get "/beszel_status"
+    get "/status/beszel"
 
     assert_select ".rubylode-beszel-summary", text: "Status unavailable"
     assert_select ".rubylode-beszel-hint", text: /not allowed/
@@ -142,11 +142,11 @@ class RubylodeBeszel::CredentialSecrecyTest < Redmine::IntegrationTest
   end
 
   test "a plain http hub that is not loopback and not allowed is never sent credentials" do
-    configure_plugin("hub_url" => "http://beszel.example.com", "email_environment_variable" => EMAIL_VARIABLE,
+    configure_plugin("base_url" => "http://beszel.example.com", "email_environment_variable" => EMAIL_VARIABLE,
                      "password_environment_variable" => PASSWORD_VARIABLE)
 
     log_user("admin", "admin")
-    get "/beszel_status"
+    get "/status/beszel"
 
     assert_select ".rubylode-beszel-summary", text: "Status unavailable"
     assert_select ".rubylode-beszel-hint", text: /not https/

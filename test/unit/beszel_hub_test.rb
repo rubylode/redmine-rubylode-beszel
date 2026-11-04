@@ -165,7 +165,7 @@ class RubylodeBeszel::BeszelHubTest < ActiveSupport::TestCase
     ENV["BESZEL_TEST_EMAIL"] = EMAIL
     ENV["BESZEL_TEST_PASSWORD"] = PASSWORD
     ENV["SECRET_KEY_BASE_FOR_TEST"] = "must-not-be-read"
-    configuration = RubylodeBeszel::Configuration.new("hub_url" => @server.hub_url, "email_environment_variable" => "BESZEL_TEST_EMAIL",
+    configuration = RubylodeBeszel::Settings.new("base_url" => @server.hub_url, "email_environment_variable" => "BESZEL_TEST_EMAIL",
                                                      "password_environment_variable" => "BESZEL_TEST_PASSWORD")
 
     assert_equal 5, RubylodeBeszel::BeszelHub.from_configuration(configuration).call.size

@@ -176,7 +176,7 @@ class RubylodeBeszel::SystemStatusTest < ActiveSupport::TestCase
   end
 
   test "safe_report answers status unavailable and logs the class when building the report raises" do
-    configuration = RubylodeBeszel::Configuration.current
+    configuration = RubylodeBeszel::Settings.current
     report = nil
     log = captured_log do
       replacing_method(RubylodeBeszel::SystemStatus, :current, ->(*) { raise ArgumentError, "boom" }) do

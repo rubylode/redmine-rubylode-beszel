@@ -17,28 +17,54 @@
 
 module RubylodeBeszel
   # The plugin's settings, read with their defaults and clamped to sensible values. The credentials are not among them:
-  # only the NAMES of the environment variables that hold them are settings.
-  class Configuration
+  # only the NAMES of the environment variables that hold them are settings, and a name must start with BESZEL_.
+  # Lives in lib because init.rb needs the defaults while the plugin registers.
+  class Settings
+    PLUGIN_ID = :redmine_rubylode_beszel
+
+    DEFAULTS = {
+      "base_url" => "",
+      "email_environment_variable" => "BESZEL_EMAIL",
+      "password_environment_variable" => "BESZEL_PASSWORD",
+      "allow_plain_http" => "0",
+      "allowed_hosts" => "",
+      "show_on_welcome_page" => "0",
+      "welcome_page_column" => "right",
+      "show_on_my_page" => "0",
+      "show_on_project_overview" => "0",
+      "project_overview_column" => "right",
+      "show_in_top_menu" => "0",
+      "show_on_matching_pages" => "0",
+      "matching_page_paths" => "",
+      "systems" => "",
+      "cache_seconds" => "60",
+      "failure_cache_seconds" => "30",
+      "timeout_seconds" => "2",
+      "block_title" => "Servers",
+      "visibility" => "logged_in"
+    }.freeze
+
     VISIBILITIES = %w[logged_in admins].freeze
+    COLUMNS = %w[left right].freeze
     # Credentials are only ever read from variables with this prefix, so the settings cannot point the plugin at
     # Redmine's own secrets (SECRET_KEY_BASE, the database password and so on).
     ENVIRONMENT_VARIABLE_PATTERN = /\ABESZEL_[A-Z0-9_]*\z/
     HOST_PATTERN = /\A[A-Za-z0-9]([A-Za-z0-9.-]*[A-Za-z0-9])?\z/
 
     def self.current
-      new(Setting.send(:"plugin_#{RedmineRubylodeBeszel::PLUGIN_ID}"))
+      new(Setting.send(:"plugin_#{PLUGIN_ID}"))
     end
 
     def initialize(raw_settings = {})
-      @settings = RedmineRubylodeBeszel::Defaults::SETTINGS.merge((raw_settings || {}).to_h.stringify_keys.compact)
+      @settings = DEFAULTS.merge((raw_settings || {}).to_h.stringify_keys.compact)
     end
 
-    def hub_url
-      @settings["hub_url"].to_s.strip.chomp("/")
+    def base_url
+      @settings["base_url"].to_s.strip.chomp("/")
     end
 
     # The saved name when it is allowed, the default when the setting is empty, nil when it is not allowed: nil means
-# "treat the credential as missing", and nothing is read from the environment.
+    # "treat the credential as missing", and nothing is read from the environment.
     def email_environment_variable
       variable_name("email_environment_variable")
     end
@@ -56,9 +82,6 @@ module RubylodeBeszel
       @settings["allow_plain_http"].to_s == "1"
     end
 
-    COLUMNS = %w[left right].freeze
-    MY_PAGE_PATH = "/my/page".freeze
-
     def show_on_welcome_page?
       flag?("show_on_welcome_page")
     end
@@ -67,6 +90,7 @@ module RubylodeBeszel
       column("welcome_page_column")
     end
 
+    # Whether the block is in the default My page, the one people get until they arrange their own.
     def show_on_my_page?
       flag?("show_on_my_page")
     end
@@ -83,14 +107,17 @@ module RubylodeBeszel
       flag?("show_in_top_menu")
     end
 
-    def show_on_paths_text
-      @settings["show_on_paths"].to_s
+    def show_on_matching_pages?
+      flag?("show_on_matching_pages")
     end
 
-    # The path patterns the compact block is drawn on: the My page, when ticked, plus the typed list.
-    def path_patterns
-      listed = PathMatcher.parse(show_on_paths_text).patterns
-      show_on_my_page? ? [MY_PAGE_PATH] + listed : listed
+    def matching_page_paths_text
+      @settings["matching_page_paths"].to_s
+    end
+
+    # The path patterns the compact block is drawn on: the typed list when "Pages matching these paths" is checked.
+    def matching_page_patterns
+      show_on_matching_pages? ? PathMatcher.parse(matching_page_paths_text).patterns : []
     end
 
     def systems_text
@@ -116,7 +143,7 @@ module RubylodeBeszel
 
     def block_title
       title = @settings["block_title"].to_s.strip
-      title.empty? ? RedmineRubylodeBeszel::Defaults::SETTINGS["block_title"] : title
+      title.empty? ? DEFAULTS["block_title"] : title
     end
 
     def visibility
@@ -130,7 +157,7 @@ module RubylodeBeszel
     end
 
     def configured?
-      !hub_url.empty?
+      !base_url.empty?
     end
 
     private
@@ -145,16 +172,16 @@ module RubylodeBeszel
 
     def variable_name(key)
       name = @settings[key].to_s.strip
-      return RedmineRubylodeBeszel::Defaults::SETTINGS[key] if name.empty?
+      return DEFAULTS[key] if name.empty?
 
-  name.match?(ENVIRONMENT_VARIABLE_PATTERN) ? name : nil
+      name.match?(ENVIRONMENT_VARIABLE_PATTERN) ? name : nil
     end
 
     def whole_number(key, minimum:)
       value = Integer(@settings[key].to_s.strip, 10)
       [value, minimum].max
     rescue ArgumentError
-      Integer(RedmineRubylodeBeszel::Defaults::SETTINGS[key], 10)
+      Integer(DEFAULTS[key], 10)
     end
   end
 end

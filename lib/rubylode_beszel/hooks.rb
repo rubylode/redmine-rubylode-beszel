@@ -15,9 +15,9 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-module RedmineRubylodeBeszel
+module RubylodeBeszel
   # Puts the status block where the settings ask for it: Redmine's welcome (Home) page, the project Overview page, and every
-  # page whose path matches the path list (the My page included, when ticked). The block is the same partial as everywhere
+  # page whose path matches the list of paths (when "Pages matching these paths" is checked). The block is the same partial as everywhere
   # else, so permission, caching and the unavailable fallback are the same too.
   class Hooks < Redmine::Hook::ViewListener
     def view_welcome_index_left(context)
@@ -36,7 +36,7 @@ module RedmineRubylodeBeszel
       render_on_project_overview(context, "right")
     end
 
-    # The page's head is drawn before the body hook below runs, so a page that is going to get the block through the path list
+    # The page's head is drawn before the body hook below runs, so a page that is going to get the block through the list of paths
     # takes the stylesheet here.
     def view_layouts_base_html_head(context)
       return "" unless path_matches?(context)
@@ -53,9 +53,9 @@ module RedmineRubylodeBeszel
 
     private
 
-    # Whether the path list asks for the block on this request. Anyone may be asked: the partial decides who sees it.
+    # Whether the list of paths asks for the block on this request. Anyone may be asked: the partial decides who sees it.
     def path_matches?(context)
-      patterns = RubylodeBeszel::Configuration.current.path_patterns
+      patterns = RubylodeBeszel::Settings.current.matching_page_patterns
       request = context[:request]
       return false if patterns.empty? || request.nil? || !request.get?
 
@@ -64,14 +64,14 @@ module RedmineRubylodeBeszel
     end
 
     def render_on_welcome_page(context, column)
-      configuration = RubylodeBeszel::Configuration.current
+      configuration = RubylodeBeszel::Settings.current
       return "" unless configuration.show_on_welcome_page? && configuration.welcome_page_column == column
 
       context[:hook_caller].render(partial: "rubylode_beszel/status")
     end
 
     def render_on_project_overview(context, column)
-      configuration = RubylodeBeszel::Configuration.current
+      configuration = RubylodeBeszel::Settings.current
       return "" unless configuration.show_on_project_overview? && configuration.project_overview_column == column
 
       context[:hook_caller].render(partial: "rubylode_beszel/status")

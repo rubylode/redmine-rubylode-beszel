@@ -35,10 +35,10 @@ admin = User.find_by_login("admin")
 admin.update_columns(must_change_passwd: false)
 User.current = admin
 
-# The fake hub is reached by its service name over plain http on the compose network, so the box that allows it is ticked.
+# The fake hub is reached by its service name over plain http on the compose network, so "Allow plain http" is checked.
 # The credentials are in the environment of the Redmine container (BESZEL_EMAIL, BESZEL_PASSWORD), never in these settings.
-Setting.plugin_redmine_rubylode_beszel = RedmineRubylodeBeszel::Defaults::SETTINGS.merge(
-  "hub_url" => "http://fake_beszel:8090",
+Setting.plugin_redmine_rubylode_beszel = RubylodeBeszel::Settings::DEFAULTS.merge(
+  "base_url" => "http://fake_beszel:8090",
   "allow_plain_http" => "1",
   "systems" => <<~LIST,
     Web | web-1 | The public site
@@ -48,7 +48,8 @@ Setting.plugin_redmine_rubylode_beszel = RedmineRubylodeBeszel::Defaults::SETTIN
   LIST
   "show_on_welcome_page" => "1",
   "show_on_project_overview" => "1",
-  "show_on_paths" => "/issues",
+  "show_on_matching_pages" => "1",
+  "matching_page_paths" => "/issues",
   "show_in_top_menu" => "1",
   "cache_seconds" => "5",
   "failure_cache_seconds" => "5"

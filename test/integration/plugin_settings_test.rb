@@ -25,7 +25,7 @@ class RubylodeBeszel::PluginSettingsTest < Redmine::IntegrationTest
   SETTINGS_PATH = "/settings/plugin/redmine_rubylode_beszel".freeze
 
   GOOD_SETTINGS = {
-    "hub_url" => "https://beszel.example.com",
+    "base_url" => "https://beszel.example.com",
     "email_environment_variable" => "BESZEL_HUB_EMAIL",
     "password_environment_variable" => "BESZEL_HUB_PASSWORD",
     "allow_plain_http" => "0", "allowed_hosts" => "hub2.example.com",
@@ -35,7 +35,7 @@ class RubylodeBeszel::PluginSettingsTest < Redmine::IntegrationTest
   }.freeze
 
   setup do
-    Setting.send(:"plugin_#{PLUGIN_ID}=", RedmineRubylodeBeszel::Defaults::SETTINGS.dup)
+    Setting.send(:"plugin_#{PLUGIN_ID}=", RubylodeBeszel::Settings::DEFAULTS.dup)
   end
 
   def saved
@@ -47,7 +47,7 @@ class RubylodeBeszel::PluginSettingsTest < Redmine::IntegrationTest
     get SETTINGS_PATH
 
     assert_response :success
-    %w[hub_url email_environment_variable password_environment_variable allow_plain_http allowed_hosts systems block_title
+    %w[base_url email_environment_variable password_environment_variable allow_plain_http allowed_hosts systems block_title
        visibility cache_seconds failure_cache_seconds timeout_seconds].each do |field|
       assert_select "[name=?]", "settings[#{field}]"
     end
@@ -60,11 +60,11 @@ class RubylodeBeszel::PluginSettingsTest < Redmine::IntegrationTest
     post SETTINGS_PATH, params: { settings: GOOD_SETTINGS }
 
     assert_redirected_to SETTINGS_PATH
-    assert_equal "https://beszel.example.com", saved["hub_url"]
+    assert_equal "https://beszel.example.com", saved["base_url"]
     assert_equal "BESZEL_HUB_EMAIL", saved["email_environment_variable"]
     assert_equal "admins", saved["visibility"]
-    assert_equal 2, RubylodeBeszel::Configuration.current.systems.size
-    assert_equal %w[hub2.example.com], RubylodeBeszel::Configuration.current.allowed_hosts
+    assert_equal 2, RubylodeBeszel::Settings.current.systems.size
+    assert_equal %w[hub2.example.com], RubylodeBeszel::Settings.current.allowed_hosts
   end
 
   test "a bad server line shows the line error, keeps what was typed and saves nothing" do
@@ -74,12 +74,12 @@ class RubylodeBeszel::PluginSettingsTest < Redmine::IntegrationTest
     assert_response :unprocessable_entity
     assert_select "#errorExplanation li", text: /line 2/
     assert_select "textarea[name=?]", "settings[systems]", text: /broken line here/
-    assert_equal "", saved["hub_url"], "nothing was saved"
+    assert_equal "", saved["base_url"], "nothing was saved"
   end
 
   test "an invalid hub url is refused" do
     log_user("admin", "admin")
-    post SETTINGS_PATH, params: { settings: GOOD_SETTINGS.merge("hub_url" => "ftp://nope") }
+    post SETTINGS_PATH, params: { settings: GOOD_SETTINGS.merge("base_url" => "ftp://nope") }
 
     assert_response :unprocessable_entity
     assert_select "#errorExplanation li", 1
@@ -95,19 +95,19 @@ class RubylodeBeszel::PluginSettingsTest < Redmine::IntegrationTest
       post SETTINGS_PATH, params: { settings: GOOD_SETTINGS.merge("password_environment_variable" => name) }
       assert_response :unprocessable_entity
     end
-    assert_equal "", saved["hub_url"]
+    assert_equal "", saved["base_url"]
   end
 
   test "a plain http hub is refused at save unless the box is ticked or the host is loopback" do
     log_user("admin", "admin")
-    post SETTINGS_PATH, params: { settings: GOOD_SETTINGS.merge("hub_url" => "http://beszel.example.com") }
+    post SETTINGS_PATH, params: { settings: GOOD_SETTINGS.merge("base_url" => "http://beszel.example.com") }
     assert_response :unprocessable_entity
 
-    post SETTINGS_PATH, params: { settings: GOOD_SETTINGS.merge("hub_url" => "http://beszel.example.com", "allow_plain_http" => "1") }
+    post SETTINGS_PATH, params: { settings: GOOD_SETTINGS.merge("base_url" => "http://beszel.example.com", "allow_plain_http" => "1") }
     assert_redirected_to SETTINGS_PATH
-    assert RubylodeBeszel::Configuration.current.allow_plain_http?
+    assert RubylodeBeszel::Settings.current.allow_plain_http?
 
-    post SETTINGS_PATH, params: { settings: GOOD_SETTINGS.merge("hub_url" => "http://localhost:8090") }
+    post SETTINGS_PATH, params: { settings: GOOD_SETTINGS.merge("base_url" => "http://localhost:8090") }
     assert_redirected_to SETTINGS_PATH
   end
 
@@ -118,11 +118,11 @@ class RubylodeBeszel::PluginSettingsTest < Redmine::IntegrationTest
     assert_response :forbidden
     post SETTINGS_PATH, params: { settings: GOOD_SETTINGS }
     assert_response :forbidden
-    assert_equal "", saved["hub_url"]
+    assert_equal "", saved["base_url"]
   end
 
   test "the validation patch is applied to the settings controller" do
-    assert SettingsController.include?(RedmineRubylodeBeszel::SettingsControllerPatch)
+    assert SettingsController.include?(RubylodeBeszel::SettingsControllerPatch)
   end
 end
 
@@ -138,8 +138,39 @@ class RubylodeBeszel::PluginSettingsHelpTest < Redmine::IntegrationTest
     get PATH
 
     %w[show_on_welcome_page welcome_page_column show_on_my_page show_on_project_overview project_overview_column show_in_top_menu
-       show_on_paths].each do |field|
+       show_on_matching_pages matching_page_paths].each do |field|
       assert_select "[name=?]", "settings[#{field}]"
+    end
+  end
+
+  test "the settings page words each setting the standard way" do
+    log_user("admin", "admin")
+    get PATH
+
+    { "base_url" => "Beszel address", "email_environment_variable" => "Email variable",
+      "password_environment_variable" => "Password variable", "allowed_hosts" => "Allowed hosts",
+      "allow_plain_http" => "Allow plain http", "block_title" => "Block title", "show_on_welcome_page" => "Welcome page",
+      "show_on_my_page" => "My page", "show_on_project_overview" => "Project Overview page",
+      "show_on_matching_pages" => "Pages matching these paths", "matching_page_paths" => "Paths",
+      "show_in_top_menu" => "Show in the top menu", "cache_seconds" => "Cache seconds",
+      "failure_cache_seconds" => "Failure cache seconds", "timeout_seconds" => "Timeout seconds" }.each do |field, label|
+      assert_select "label[for=settings_#{field}]", text: label
+    end
+    assert_select "h3", text: "Show the block on"
+    assert_select "label[for=settings_welcome_page_column]", text: "Column"
+    assert_select "label[for=settings_project_overview_column]", text: "Column"
+    assert_select "select#settings_welcome_page_column option", text: "Left"
+    assert_select "select#settings_project_overview_column option", text: "Right"
+  end
+
+  test "every setting on the page has a hint" do
+    log_user("admin", "admin")
+    get PATH
+
+    %w[base_url email_environment_variable password_environment_variable allowed_hosts allow_plain_http systems block_title
+       cache_seconds failure_cache_seconds timeout_seconds show_on_welcome_page show_on_my_page show_on_project_overview
+       show_on_matching_pages matching_page_paths show_in_top_menu].each do |field|
+      assert_select "#settings_#{field} ~ em.info", { minimum: 1 }, "no hint for #{field}"
     end
   end
 
@@ -153,23 +184,23 @@ class RubylodeBeszel::PluginSettingsHelpTest < Redmine::IntegrationTest
     assert_select ".rubylode-beszel-help pre", text: /render partial: "rubylode_beszel\/status"/
     assert_select ".rubylode-beszel-help pre", text: /compact: true/
     assert_select ".rubylode-beszel-help", text: /welcome text/
-    assert_select ".rubylode-beszel-help code", text: /"Servers":\/beszel_status/
+    assert_select ".rubylode-beszel-help code", text: /"Servers":\/status\/beszel/
     assert_select ".rubylode-beszel-help td", text: /\/issues/
   end
 
   test "saving placements stores them, and a bad path list is refused with its line" do
     log_user("admin", "admin")
-    good = RedmineRubylodeBeszel::Defaults::SETTINGS.merge("hub_url" => "https://beszel.example.com", "show_on_welcome_page" => "1",
-                                                           "welcome_page_column" => "left", "show_on_paths" => "/issues\n/projects/*/issues")
+    good = RubylodeBeszel::Settings::DEFAULTS.merge("base_url" => "https://beszel.example.com", "show_on_welcome_page" => "1",
+                                                           "welcome_page_column" => "left", "show_on_matching_pages" => "1", "matching_page_paths" => "/issues\n/projects/*/issues")
     post PATH, params: { settings: good }
     assert_redirected_to PATH
-    assert_equal "left", RubylodeBeszel::Configuration.current.welcome_page_column
-    assert_equal ["/issues", "/projects/*/issues"], RubylodeBeszel::Configuration.current.path_patterns
+    assert_equal "left", RubylodeBeszel::Settings.current.welcome_page_column
+    assert_equal ["/issues", "/projects/*/issues"], RubylodeBeszel::Settings.current.matching_page_patterns
 
-    post PATH, params: { settings: good.merge("show_on_paths" => "/ok\nnot-a-path") }
+    post PATH, params: { settings: good.merge("matching_page_paths" => "/ok\nnot-a-path") }
     assert_response :unprocessable_entity
     assert_select "#errorExplanation li", text: /line 2/
-    assert_select "textarea[name=?]", "settings[show_on_paths]", text: /not-a-path/
+    assert_select "textarea[name=?]", "settings[matching_page_paths]", text: /not-a-path/
   end
 
   test "the plugin shows its project address and author on the Plugins page" do

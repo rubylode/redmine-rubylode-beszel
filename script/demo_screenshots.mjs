@@ -24,17 +24,17 @@ const browser = await launch()
 const page = await signedInPage(browser, "sam.rivera", "demo-password-1", { width: 1280, height: 640 })
 
 await scenario("all_up")
-await shoot(page, "status-all-up", "/beszel_status", ".rubylode-beszel-table")
+await shoot(page, "status-all-up", "/status/beszel", ".rubylode-beszel-table")
 
 await scenario("one_down")
-await shoot(page, "status-one-down", "/beszel_status", ".rubylode-beszel-table")
+await shoot(page, "status-one-down", "/status/beszel", ".rubylode-beszel-table")
 await shoot(page, "wiki-macro", "/projects/operations/wiki/Servers", ".wiki .rubylode-beszel-table")
 
 await shoot(page, "welcome-page", "/", ".rubylode-beszel")
 await shoot(page, "issues-page-compact", "/issues", ".rubylode-beszel.is-compact")
 
 await scenario("unavailable")
-await shoot(page, "status-unavailable", "/beszel_status", ".rubylode-beszel-summary.is-unavailable")
+await shoot(page, "status-unavailable", "/status/beszel", ".rubylode-beszel-summary.is-unavailable")
 
 await scenario("all_up")
 await browser.close()

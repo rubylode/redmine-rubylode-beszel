@@ -21,7 +21,7 @@ require "stringio"
 require_relative "support/fake_beszel_hub"
 
 module RubylodeBeszelTestHelpers
-  PLUGIN_ID = RedmineRubylodeBeszel::PLUGIN_ID
+  PLUGIN_ID = RubylodeBeszel::Settings::PLUGIN_ID
 
   SAMPLE_SYSTEMS = <<~TEXT.freeze
     Web | web-1 | The public site
@@ -35,8 +35,8 @@ module RubylodeBeszelTestHelpers
   end
 
   def configure_plugin(overrides = {})
-    settings = RedmineRubylodeBeszel::Defaults::SETTINGS.merge(
-      "hub_url" => "https://beszel.example.com",
+    settings = RubylodeBeszel::Settings::DEFAULTS.merge(
+      "base_url" => "https://beszel.example.com",
       "systems" => SAMPLE_SYSTEMS
     ).merge(overrides.transform_keys(&:to_s))
     Setting.send(:"plugin_#{PLUGIN_ID}=", settings)
@@ -49,6 +49,31 @@ module RubylodeBeszelTestHelpers
 
   def restore_cache
     RubylodeBeszel::SystemStatus.cache = @original_cache
+  end
+
+  # Stands in for the Status plugin's registry for the length of the block, and records what is registered.
+  # The Status plugin is not mounted next to this one in the test image, so the real registry is not available here.
+  class FakeStatusRegistry
+    attr_reader :calls
+
+    def initialize
+      @calls = []
+    end
+
+    def register(**arguments)
+      @calls << arguments
+    end
+  end
+
+  def with_fake_status_registry
+    registry = FakeStatusRegistry.new
+    registry_module = Module.new
+    registry_module.define_singleton_method(:register) { |**arguments| registry.register(**arguments) }
+    Object.const_set(:RubylodeStatus, Module.new)
+    RubylodeStatus.const_set(:Registry, registry_module)
+    yield registry
+  ensure
+    Object.send(:remove_const, :RubylodeStatus) if Object.const_defined?(:RubylodeStatus)
   end
 
   # A cache store that fails the way a cache file owned by another user does.

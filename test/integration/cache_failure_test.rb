@@ -36,7 +36,7 @@ class RubylodeBeszel::CacheFailureTest < Redmine::IntegrationTest
     @server = FakeBeszelHub.new(email: EMAIL, password: PASSWORD).start
     ENV[EMAIL_VARIABLE] = EMAIL
     ENV[PASSWORD_VARIABLE] = PASSWORD
-    configure_plugin("hub_url" => @server.hub_url, "email_environment_variable" => EMAIL_VARIABLE,
+    configure_plugin("base_url" => @server.hub_url, "email_environment_variable" => EMAIL_VARIABLE,
                      "password_environment_variable" => PASSWORD_VARIABLE, "show_on_welcome_page" => "1")
   end
 
@@ -94,7 +94,7 @@ class RubylodeBeszel::CacheFailureTest < Redmine::IntegrationTest
   end
 
   test "the project overview answers 200 with status unavailable when the status object raises" do
-    configure_plugin("hub_url" => @server.hub_url, "show_on_project_overview" => "1")
+    configure_plugin("base_url" => @server.hub_url, "show_on_project_overview" => "1")
 
     log_user("jsmith", "jsmith")
     raising_status { get "/projects/ecookbook" }
@@ -104,7 +104,7 @@ class RubylodeBeszel::CacheFailureTest < Redmine::IntegrationTest
   end
 
   test "a page on the path list answers 200 with status unavailable when the status object raises" do
-    configure_plugin("hub_url" => @server.hub_url, "show_on_paths" => "/issues")
+    configure_plugin("base_url" => @server.hub_url, "show_on_matching_pages" => "1", "matching_page_paths" => "/issues")
 
     log_user("jsmith", "jsmith")
     raising_status { get "/issues" }
@@ -127,7 +127,7 @@ class RubylodeBeszel::CacheFailureTest < Redmine::IntegrationTest
 
   test "the standalone page answers 200 with status unavailable when the status object raises" do
     log_user("jsmith", "jsmith")
-    raising_status { get "/beszel_status" }
+    raising_status { get "/status/beszel" }
 
     assert_response :success
     assert_select "#{SUMMARY}.is-unavailable"
@@ -135,12 +135,12 @@ class RubylodeBeszel::CacheFailureTest < Redmine::IntegrationTest
 
   test "an administrator sees the class name of the error in the hint, others do not" do
     log_user("admin", "admin")
-    raising_status { get "/beszel_status" }
+    raising_status { get "/status/beszel" }
     assert_select ".rubylode-beszel-hint", text: /IOError/
 
     post "/logout"
     log_user("jsmith", "jsmith")
-    raising_status { get "/beszel_status" }
+    raising_status { get "/status/beszel" }
     assert_select ".rubylode-beszel-hint", 0
   end
 end

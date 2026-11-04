@@ -40,7 +40,7 @@ class RubylodeBeszel::StatusPageTest < Redmine::IntegrationTest
     publish_systems([hub_record("web-1", cpu: 23.4, memory: 41.8, disk: 52.1), hub_record("db-1", status: "down"), hub_record("backup-1", disk: 93.4)])
 
     log_user("jsmith", "jsmith")
-    get "/beszel_status"
+    get "/status/beszel"
 
     assert_response :success
     assert_select ".rubylode-beszel-summary.is-has-down", text: "1 of 3 down"
@@ -60,7 +60,7 @@ class RubylodeBeszel::StatusPageTest < Redmine::IntegrationTest
     publish_systems([hub_record("web-1", cpu: 84.0)])
 
     log_user("jsmith", "jsmith")
-    get "/beszel_status"
+    get "/status/beszel"
 
     assert_select ".rubylode-beszel-bar.is-warning[aria-label=CPU]"
   end
@@ -69,7 +69,7 @@ class RubylodeBeszel::StatusPageTest < Redmine::IntegrationTest
     publish_systems([hub_record("web-1"), hub_record("db-1"), hub_record("backup-1")])
 
     log_user("jsmith", "jsmith")
-    get "/beszel_status"
+    get "/status/beszel"
 
     assert_select ".rubylode-beszel-summary.is-all-up", text: "All servers up"
     assert_select "tr.is-down", 0
@@ -79,18 +79,18 @@ class RubylodeBeszel::StatusPageTest < Redmine::IntegrationTest
     publish_systems([hub_record("web-1"), hub_record("staging-1", status: "down")])
 
     log_user("jsmith", "jsmith")
-    get "/beszel_status"
+    get "/status/beszel"
 
     assert_select ".rubylode-beszel-table", text: /staging-1/, count: 0
   end
 
-  test "a system without readings shows dashes" do
+  test "a system without readings shows n/a" do
     publish_systems([hub_record("web-1", cpu: nil, memory: nil, disk: nil)])
 
     log_user("jsmith", "jsmith")
-    get "/beszel_status"
+    get "/status/beszel"
 
-    assert_select "tr.is-up td.rubylode-beszel-usage", text: "–", count: 3
+    assert_select "tr.is-up td.rubylode-beszel-usage", text: "n/a", count: 3
   end
 
   test "with no list in the settings every system of the hub is shown" do
@@ -98,7 +98,7 @@ class RubylodeBeszel::StatusPageTest < Redmine::IntegrationTest
     publish_systems([hub_record("web-1"), hub_record("staging-1")])
 
     log_user("jsmith", "jsmith")
-    get "/beszel_status"
+    get "/status/beszel"
 
     assert_select "td.rubylode-beszel-name", text: "staging-1"
     assert_select "td.rubylode-beszel-name", text: "web-1"
@@ -109,7 +109,7 @@ class RubylodeBeszel::StatusPageTest < Redmine::IntegrationTest
     publish_systems([hub_record("web-1")])
 
     log_user("jsmith", "jsmith")
-    get "/beszel_status"
+    get "/status/beszel"
 
     assert_select "h2", text: "Company servers"
   end
@@ -118,7 +118,7 @@ class RubylodeBeszel::StatusPageTest < Redmine::IntegrationTest
     hub_failure
 
     log_user("jsmith", "jsmith")
-    get "/beszel_status"
+    get "/status/beszel"
 
     assert_response :success
     assert_select ".rubylode-beszel-summary.is-unavailable", text: "Status unavailable"
@@ -127,38 +127,38 @@ class RubylodeBeszel::StatusPageTest < Redmine::IntegrationTest
 
     post "/logout"
     log_user("admin", "admin")
-    get "/beszel_status"
+    get "/status/beszel"
     assert_select ".rubylode-beszel-hint", text: /answered 503/
   end
 
   test "missing credentials show status unavailable and the page renders" do
     ENV.delete("BESZEL_EMAIL")
     ENV.delete("BESZEL_PASSWORD")
-    configure_plugin("hub_url" => "http://127.0.0.1:9")
+    configure_plugin("base_url" => "http://127.0.0.1:9")
 
     log_user("jsmith", "jsmith")
-    get "/beszel_status"
+    get "/status/beszel"
 
     assert_response :success
     assert_select ".rubylode-beszel-summary", text: "Status unavailable"
   end
 
   test "not configured: administrators get a hint with a link to the settings, everyone else gets an empty page" do
-    configure_plugin("hub_url" => "")
+    configure_plugin("base_url" => "")
 
     log_user("admin", "admin")
-    get "/beszel_status"
+    get "/status/beszel"
     assert_select ".rubylode-beszel-hint a[href=?]", "/settings/plugin/redmine_rubylode_beszel"
 
     post "/logout"
     log_user("jsmith", "jsmith")
-    get "/beszel_status"
+    get "/status/beszel"
     assert_response :success
     assert_select ".rubylode-beszel", 0
   end
 
   test "an anonymous visitor is sent to sign in" do
-    get "/beszel_status"
+    get "/status/beszel"
 
     assert_redirected_to %r{/login}
   end
@@ -167,7 +167,7 @@ class RubylodeBeszel::StatusPageTest < Redmine::IntegrationTest
     publish_systems([hub_record("web-1")])
 
     log_user("jsmith", "jsmith")
-    get "/beszel_status"
+    get "/status/beszel"
 
     assert_select "head link[href*=?]", "rubylode_beszel"
   end
@@ -177,12 +177,12 @@ class RubylodeBeszel::StatusPageTest < Redmine::IntegrationTest
     publish_systems([hub_record("web-1")])
 
     log_user("jsmith", "jsmith")
-    get "/beszel_status"
+    get "/status/beszel"
     assert_response :forbidden
 
     post "/logout"
     log_user("admin", "admin")
-    get "/beszel_status"
+    get "/status/beszel"
     assert_response :success
     assert_select ".rubylode-beszel-summary"
   end

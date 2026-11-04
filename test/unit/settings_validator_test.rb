@@ -23,7 +23,7 @@ class RubylodeBeszel::SettingsValidatorTest < ActiveSupport::TestCase
   end
 
   test "good settings have no errors" do
-    assert_empty errors_for("hub_url" => "https://beszel.example.com", "email_environment_variable" => "BESZEL_EMAIL",
+    assert_empty errors_for("base_url" => "https://beszel.example.com", "email_environment_variable" => "BESZEL_EMAIL",
                             "systems" => "Web | web-1 | Site", "cache_seconds" => "60", "visibility" => "admins", "block_title" => "Servers")
   end
 
@@ -32,8 +32,8 @@ class RubylodeBeszel::SettingsValidatorTest < ActiveSupport::TestCase
   end
 
   test "the hub url must be a web address" do
-    assert_equal 1, errors_for("hub_url" => "ftp://nope").size
-    assert_equal 1, errors_for("hub_url" => "not a url").size
+    assert_equal 1, errors_for("base_url" => "ftp://nope").size
+    assert_equal 1, errors_for("base_url" => "not a url").size
   end
 
   test "variable names outside the BESZEL_ prefix are rejected, Redmine's own secrets included" do
@@ -45,10 +45,10 @@ class RubylodeBeszel::SettingsValidatorTest < ActiveSupport::TestCase
   end
 
   test "an http hub url needs the plain http box unless the host is loopback" do
-    assert_equal 1, errors_for("hub_url" => "http://beszel.example.com").size
-    assert_empty errors_for("hub_url" => "http://beszel.example.com", "allow_plain_http" => "1")
-    assert_empty errors_for("hub_url" => "http://localhost:8090")
-    assert_empty errors_for("hub_url" => "http://127.0.0.1:8090")
+    assert_equal 1, errors_for("base_url" => "http://beszel.example.com").size
+    assert_empty errors_for("base_url" => "http://beszel.example.com", "allow_plain_http" => "1")
+    assert_empty errors_for("base_url" => "http://localhost:8090")
+    assert_empty errors_for("base_url" => "http://127.0.0.1:8090")
   end
 
   test "allowed hosts must be host names" do
@@ -79,11 +79,11 @@ class RubylodeBeszel::SettingsValidatorPlacementTest < ActiveSupport::TestCase
   end
 
   test "good paths and columns have no errors" do
-    assert_empty errors_for("show_on_paths" => "/issues\n/projects/*/issues", "welcome_page_column" => "left", "project_overview_column" => "right")
+    assert_empty errors_for("matching_page_paths" => "/issues\n/projects/*/issues", "welcome_page_column" => "left", "project_overview_column" => "right")
   end
 
   test "a path without a leading slash, with a host or with a query is refused, each with its line" do
-    messages = errors_for("show_on_paths" => "issues\nhttps://example.com/x\n/a?b=1")
+    messages = errors_for("matching_page_paths" => "issues\nhttps://example.com/x\n/a?b=1")
 
     assert_equal 3, messages.size
     assert_match(/line 1.*must start with \//, messages[0])
@@ -92,7 +92,7 @@ class RubylodeBeszel::SettingsValidatorPlacementTest < ActiveSupport::TestCase
   end
 
   test "an overlong path is refused" do
-    assert_equal 1, errors_for("show_on_paths" => "/#{'x' * 250}").size
+    assert_equal 1, errors_for("matching_page_paths" => "/#{'x' * 250}").size
   end
 
   test "a column other than left or right is refused" do

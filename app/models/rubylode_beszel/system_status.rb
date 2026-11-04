@@ -46,23 +46,23 @@ module RubylodeBeszel
         @cache ||= Rails.cache
       end
 
-      def cache_key_for(hub_url)
-        "rubylode_beszel/systems/#{Digest::SHA256.hexdigest(hub_url.to_s)[0, 16]}"
+      def cache_key_for(base_url)
+        "rubylode_beszel/systems/#{Digest::SHA256.hexdigest(base_url.to_s)[0, 16]}"
       end
 
       # The report for a page. Whatever goes wrong while building it, the page gets a "status unavailable" report and never an error.
-      def safe_report(configuration = Configuration.current)
+      def safe_report(configuration = Settings.current)
         current(configuration).report
       rescue StandardError => error
         Rails.logger.warn("Rubylode Beszel: could not build the status block: #{error.class}: #{error.message}")
         Report.new([], I18n.t("rubylode_beszel.status.unavailable"), true, error.class.name)
       end
 
-      def current(configuration = Configuration.current)
+      def current(configuration = Settings.current)
         new(servers: configuration.systems,
             fetch_systems: -> { BeszelHub.from_configuration(configuration).call },
             cache: cache,
-            cache_key: cache_key_for(configuration.hub_url),
+            cache_key: cache_key_for(configuration.base_url),
             cache_seconds: configuration.cache_seconds,
             failure_seconds: configuration.failure_cache_seconds)
       end

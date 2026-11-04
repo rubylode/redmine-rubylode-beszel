@@ -15,24 +15,16 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-module RedmineRubylodeBeszel
-  # Zeitwerk expects this file to define RedmineRubylodeBeszel::Macros, so the registration lives in a method that init.rb calls.
-  module Macros
-    def self.register
-      Redmine::WikiFormatting::Macros.register do
-        desc <<~DESCRIPTION
-          Shows the latest status of the servers monitored by the Beszel hub set in the Rubylode Beszel settings.
+module RubylodeBeszel
+  # "My page" in the settings adds the block to the default My page, the one a person gets until they arrange their own.
+  # People who arranged theirs keep their layout and can still add the block from the block list.
+  module DefaultMyPagePatch
+    BLOCK = "rubylode_beszel_status".freeze
 
-            {{beszel_status}}
-            {{beszel_status(title=Our servers)}}
-
-          Nothing is shown to people who are not allowed to see it.
-        DESCRIPTION
-        macro :beszel_status do |_object, arguments|
-          _positional, options = extract_macro_options(arguments, :title)
-          render partial: "rubylode_beszel/status", locals: { title: options[:title].presence }
-        end
-      end
+    def default_layout
+      layout = super
+      layout["top"] = [BLOCK] + layout["top"].to_a if Settings.current.show_on_my_page?
+      layout
     end
   end
 end

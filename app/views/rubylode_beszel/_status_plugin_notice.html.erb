@@ -1,0 +1,8 @@
+<%# Says whether Rubylode Status is installed. The wording is the same in every Rubylode status plugin. %>
+<p class="rubylode-status-notice">
+  <% if RubylodeBeszel::StatusWidget.status_plugin_present? %>
+    <%= t("rubylode_beszel.status_plugin.installed_html", link: link_to(t("rubylode_beszel.status_plugin.status_page"), "/status")) %>
+  <% else %>
+    <%= t("rubylode_beszel.status_plugin.missing_html", link: link_to("Rubylode Status", "https://github.com/rubylode/redmine-rubylode-status")) %>
+  <% end %>
+</p>

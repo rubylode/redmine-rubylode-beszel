@@ -1,3 +1,4 @@
-<% html_title @configuration.block_title %>
-<h2><%= @configuration.block_title %></h2>
+<% html_title @settings.block_title %>
+<h2><%= @settings.block_title %></h2>
 <%= render partial: "rubylode_beszel/status", locals: { show_title: false } %>
+<%= render partial: "rubylode_beszel/status_plugin_notice" %>
