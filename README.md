@@ -13,7 +13,7 @@ TL;DR: this plugin shows the latest status of the servers a [Beszel](https://bes
 [Redmine](https://www.redmine.org): up or down, when each was last seen, and CPU, memory and disk usage as bars. It comes
 as a wiki macro, a page, a My page block and a partial, and it puts its block on the [Rubylode Status](https://github.com/rubylode/redmine-rubylode-status) page when that plugin is installed.
 
-The hub's login stays in environment variables and the plugin only reads. Version 2.0.0, needs Redmine 5.1 or newer, tested
+The hub's login stays in environment variables and the plugin only reads. Version 2.1.0, needs Redmine 5.1 or newer, tested
 against a fake hub. `docs/roadmap/ROADMAP.md` lists what is not done. Upgrading from 1.x: read the 2.0.0 entry in `CHANGELOG.md`.
 
 ![The status page, one server down](docs/screenshots/status-one-down.png)

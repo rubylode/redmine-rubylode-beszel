@@ -24,7 +24,7 @@ Redmine::Plugin.register :redmine_rubylode_beszel do
   author_url "https://github.com/rubylode"
   url "https://github.com/rubylode/redmine-rubylode-beszel"
   description "The latest status of the servers monitored by a Beszel hub: a wiki macro, a page, a My page block and a partial"
-  version "2.0.0"
+  version "2.1.0"
   requires_redmine version_or_higher: "5.1.0"
 
   # A link to the page in the top menu, shown only when the settings ask for it and only to the people allowed to see the block.
