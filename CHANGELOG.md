@@ -2,7 +2,7 @@
 
 All notable changes to this plugin. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
-## [2.0.0] - Unreleased
+## [2.0.0] - 2026-11-04
 
 The settings and the page path follow the Rubylode plugin standard, and the block can show on the Rubylode Status page.
 
@@ -91,7 +91,7 @@ First version.
 - Help on the settings page and in the README: a table of where, how and which setting, with copy-paste snippets for the macro, the My page block, the path list, the partial and the page.
 - A fake Beszel hub in `test/support` for the demo and the tests, a throwaway Redmine on port 3013 (`bin/demo`), unit and integration tests, CI and screenshots.
 
-[2.0.0]: https://github.com/rubylode/redmine-rubylode-beszel/compare/v1.1.1...HEAD
+[2.0.0]: https://github.com/rubylode/redmine-rubylode-beszel/compare/v1.1.1...v2.0.0
 [1.1.1]: https://github.com/rubylode/redmine-rubylode-beszel/compare/v1.1.0...v1.1.1
 [1.1.0]: https://github.com/rubylode/redmine-rubylode-beszel/compare/v1.0.1...v1.1.0
 [1.0.1]: https://github.com/rubylode/redmine-rubylode-beszel/compare/v1.0.0...v1.0.1
