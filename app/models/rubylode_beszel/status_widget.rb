@@ -31,7 +31,7 @@ module RubylodeBeszel
       end
 
       # Called once every plugin has loaded (see init.rb). Returns whether the widget was registered.
-      def register_with_status_plugin
+      def register
         return false unless status_plugin_present?
 
         RubylodeStatus::Registry.register(

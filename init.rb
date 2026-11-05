@@ -58,5 +58,5 @@ Rails.configuration.to_prepare(&apply_settings_controller_patch)
 # Puts the block on the Status page when Rubylode Status is installed. See its docs/widget-contract.md.
 # Redmine loads plugins in alphabetical order, so this plugin's init.rb runs before the Status plugin's: wait for all of them.
 Rails.application.config.after_initialize do
-  RubylodeBeszel::StatusWidget.register_with_status_plugin
+  RubylodeBeszel::StatusWidget.register
 end

@@ -102,7 +102,7 @@ class RubylodeBeszel::StatusWidgetTest < ActiveSupport::TestCase
   test "registering with the Status plugin passes the key, the page path and the settings" do
     configure_plugin("block_title" => "Our servers", "visibility" => "admins")
     with_fake_status_registry do |registry|
-      assert RubylodeBeszel::StatusWidget.register_with_status_plugin
+      assert RubylodeBeszel::StatusWidget.register
 
       call = registry.calls.fetch(0)
       assert_equal "beszel", call[:key]
@@ -116,7 +116,7 @@ class RubylodeBeszel::StatusWidgetTest < ActiveSupport::TestCase
 
   test "registration is skipped when the Status plugin is not there" do
     refute defined?(RubylodeStatus::Registry)
-    refute RubylodeBeszel::StatusWidget.register_with_status_plugin
+    refute RubylodeBeszel::StatusWidget.register
   end
 
   test "the Status plugin counts as present exactly when its registry is defined" do
