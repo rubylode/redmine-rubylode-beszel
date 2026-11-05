@@ -64,6 +64,8 @@ row, which you can delete.
 
 ## Settings
 
+![The settings page, with the Status plugin notice and the Show the block on section](docs/screenshots/settings.png)
+
 | Setting | Default | Meaning |
 |---|---|---|
 | Beszel address | empty | For example `https://beszel.example.com`. Empty: the block is shown to administrators only, with a hint. |
