@@ -1,5 +1,6 @@
 en:
   rubylode_beszel:
+    source_link: Open Beszel
     status:
       all_up: All servers up
       some_down: "%{down} of %{known} down"
@@ -37,6 +38,7 @@ en:
       line_name_missing: the name is empty
       line_prefix: "Servers to show, line %{line_number}: %{message}"
       base_url_invalid: The Beszel address must start with http:// or https://
+      dashboard_url_invalid: The dashboard link must start with http:// or https://
       environment_variable_invalid: "%{field} must start with BESZEL_ and use only capital letters, digits and underscores. Redmine's own secrets cannot be named here."
       plain_http_refused: 'A plain http:// Beszel address is only accepted for localhost. Use https://, or check "Allow plain http" if the hub is on a network you trust.'
       allowed_hosts_invalid: "Allowed hosts must be host names, separated by spaces, commas or new lines"
@@ -63,6 +65,9 @@ en:
       base_url:
         label: Beszel address
         hint: "The address of your Beszel hub, for example https://beszel.example.com. Empty means the block is shown to administrators only, with a hint."
+      dashboard_url:
+        label: Dashboard link
+        hint: "The address people open from the block, for example https://beszel.example.com. Empty means the Beszel address above."
       email_environment_variable:
         label: Email variable
         hint: "The name of the environment variable that holds the email of a Beszel user who may read the systems. The email is never saved here. Set it before Redmine starts. The name must start with BESZEL_."

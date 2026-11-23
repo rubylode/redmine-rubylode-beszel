@@ -24,6 +24,7 @@ module RubylodeBeszel
 
     DEFAULTS = {
       "base_url" => "",
+      "dashboard_url" => "",
       "email_environment_variable" => "BESZEL_EMAIL",
       "password_environment_variable" => "BESZEL_PASSWORD",
       "allow_plain_http" => "0",
@@ -61,6 +62,21 @@ module RubylodeBeszel
 
     def base_url
       @settings["base_url"].to_s.strip.chomp("/")
+    end
+
+    # The address people open from the block: the dashboard address when it is set, otherwise the hub's own address.
+    def dashboard_url
+      @settings["dashboard_url"].to_s.strip
+    end
+
+    # Where the "Open Beszel" link goes; nil when the address is not an http or https address, so nothing is drawn.
+    def source_link_address
+      [dashboard_url, base_url].each do |address|
+        next if address.empty?
+
+        return web_address?(address) ? address : nil
+      end
+      nil
     end
 
     # The saved name when it is allowed, the default when the setting is empty, nil when it is not allowed: nil means
@@ -161,6 +177,13 @@ module RubylodeBeszel
     end
 
     private
+
+    def web_address?(address)
+      uri = URI.parse(address)
+      %w[http https].include?(uri.scheme) && !uri.host.to_s.empty?
+    rescue URI::InvalidURIError
+      false
+    end
 
     def flag?(key)
       @settings[key].to_s == "1"

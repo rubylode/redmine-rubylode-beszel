@@ -33,6 +33,7 @@ module RubylodeBeszel
     def errors
       messages = []
       messages << t("base_url_invalid") unless blank_or_web_address?("base_url")
+      messages << t("dashboard_url_invalid") unless blank_or_web_address?("dashboard_url")
       VARIABLE_FIELDS.each { |key| messages << t("environment_variable_invalid", field: I18n.t("rubylode_beszel.settings.#{key}.label")) unless environment_variable_valid?(key) }
       messages << t("plain_http_refused") unless plain_http_allowed?
       messages << t("allowed_hosts_invalid") unless allowed_hosts_valid?

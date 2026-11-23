@@ -47,6 +47,14 @@ class RubylodeBeszel::StatusPluginTest < Redmine::IntegrationTest
     assert_select "h2", text: "Servers"
   end
 
+  test "the partial the Status page draws carries the link, without the title or summary" do
+    User.current = User.find(2)
+    html = ApplicationController.render(partial: "rubylode_beszel/status", locals: { widget: Object.new, status: Object.new }, assigns: {}, formats: [:html])
+
+    assert_includes html, "rubylode-beszel-source-link"
+    assert_includes html, "Open Beszel"
+  end
+
   test "the old path /beszel_status redirects there with a 301" do
     log_user("jsmith", "jsmith")
     get "/beszel_status"

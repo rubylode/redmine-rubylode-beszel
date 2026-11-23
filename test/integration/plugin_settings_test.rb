@@ -47,7 +47,7 @@ class RubylodeBeszel::PluginSettingsTest < Redmine::IntegrationTest
     get SETTINGS_PATH
 
     assert_response :success
-    %w[base_url email_environment_variable password_environment_variable allow_plain_http allowed_hosts systems block_title
+    %w[base_url dashboard_url email_environment_variable password_environment_variable allow_plain_http allowed_hosts systems block_title
        visibility cache_seconds failure_cache_seconds timeout_seconds].each do |field|
       assert_select "[name=?]", "settings[#{field}]"
     end
@@ -147,7 +147,7 @@ class RubylodeBeszel::PluginSettingsHelpTest < Redmine::IntegrationTest
     log_user("admin", "admin")
     get PATH
 
-    { "base_url" => "Beszel address", "email_environment_variable" => "Email variable",
+    { "base_url" => "Beszel address", "dashboard_url" => "Dashboard link", "email_environment_variable" => "Email variable",
       "password_environment_variable" => "Password variable", "allowed_hosts" => "Allowed hosts",
       "allow_plain_http" => "Allow plain http", "block_title" => "Block title", "show_on_welcome_page" => "Welcome page",
       "show_on_my_page" => "My page", "show_on_project_overview" => "Project Overview page",
@@ -167,7 +167,7 @@ class RubylodeBeszel::PluginSettingsHelpTest < Redmine::IntegrationTest
     log_user("admin", "admin")
     get PATH
 
-    %w[base_url email_environment_variable password_environment_variable allowed_hosts allow_plain_http systems block_title
+    %w[base_url dashboard_url email_environment_variable password_environment_variable allowed_hosts allow_plain_http systems block_title
        cache_seconds failure_cache_seconds timeout_seconds show_on_welcome_page show_on_my_page show_on_project_overview
        show_on_matching_pages matching_page_paths show_in_top_menu].each do |field|
       assert_select "#settings_#{field} ~ em.info", { minimum: 1 }, "no hint for #{field}"

@@ -56,6 +56,48 @@ class RubylodeBeszel::StatusPageTest < Redmine::IntegrationTest
     assert_select ".rubylode-beszel-bar-fill[style=?]", "width: 93%"
   end
 
+  test "the page links to Beszel above the table, at the dashboard address when it is set" do
+    configure_plugin("dashboard_url" => "https://dashboard.example.com/beszel")
+    publish_systems([hub_record("web-1")])
+
+    log_user("jsmith", "jsmith")
+    get "/status/beszel"
+
+    assert_select "a.rubylode-beszel-source-link.external[href=?]", "https://dashboard.example.com/beszel", text: "Open Beszel", count: 1
+    assert_select "a.rubylode-beszel-source-link[target]", 0
+    assert_select "p.rubylode-beszel-source > a.rubylode-beszel-source-link"
+    assert_select "p.rubylode-beszel-source ~ table.rubylode-beszel-table"
+  end
+
+  test "the link goes to the hub address when no dashboard address is set" do
+    publish_systems([hub_record("web-1")])
+
+    log_user("jsmith", "jsmith")
+    get "/status/beszel"
+
+    assert_select "a.rubylode-beszel-source-link[href=?]", "https://beszel.example.com", text: "Open Beszel"
+  end
+
+  test "the link is there when the hub cannot be reached" do
+    hub_failure
+
+    log_user("jsmith", "jsmith")
+    get "/status/beszel"
+
+    assert_select ".rubylode-beszel-summary.is-unavailable"
+    assert_select "a.rubylode-beszel-source-link[href=?]", "https://beszel.example.com", text: "Open Beszel"
+  end
+
+  test "there is no link while the plugin is not set up" do
+    configure_plugin("base_url" => "")
+
+    log_user("admin", "admin")
+    get "/status/beszel"
+
+    assert_select ".rubylode-beszel-hint"
+    assert_select "a.rubylode-beszel-source-link", 0
+  end
+
   test "a warning-level reading gets the warning bar" do
     publish_systems([hub_record("web-1", cpu: 84.0)])
 

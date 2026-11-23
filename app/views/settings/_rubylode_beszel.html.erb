@@ -22,6 +22,12 @@
 </p>
 
 <p>
+  <label for="settings_dashboard_url"><%= l("#{scope}.dashboard_url.label") %></label>
+  <%= text_field_tag "settings[dashboard_url]", text_value.call("dashboard_url"), size: 60, id: "settings_dashboard_url", placeholder: "https://beszel.example.com" %>
+  <em class="info"><%= l("#{scope}.dashboard_url.hint") %></em>
+</p>
+
+<p>
   <label for="settings_email_environment_variable"><%= l("#{scope}.email_environment_variable.label") %></label>
   <%= text_field_tag "settings[email_environment_variable]", text_value.call("email_environment_variable"), size: 30, id: "settings_email_environment_variable" %>
   <em class="info">

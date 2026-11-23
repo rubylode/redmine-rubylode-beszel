@@ -36,6 +36,13 @@ class RubylodeBeszel::SettingsValidatorTest < ActiveSupport::TestCase
     assert_equal 1, errors_for("base_url" => "not a url").size
   end
 
+  test "the dashboard address is blank or a web address" do
+    assert_empty errors_for("dashboard_url" => "")
+    assert_empty errors_for("dashboard_url" => "https://beszel.example.com")
+    assert_equal 1, errors_for("dashboard_url" => "javascript:alert(1)").size
+    assert_equal 1, errors_for("dashboard_url" => "not a url").size
+  end
+
   test "variable names outside the BESZEL_ prefix are rejected, Redmine's own secrets included" do
     %w[SECRET_KEY_BASE DATABASE_PASSWORD PATH beszel_email].each do |name|
       assert_equal 1, errors_for("email_environment_variable" => name).size, name

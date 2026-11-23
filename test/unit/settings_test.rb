@@ -45,6 +45,29 @@ class RubylodeBeszel::SettingsTest < ActiveSupport::TestCase
     assert_equal "https://beszel.example.com", config.base_url
   end
 
+  test "the source link goes to the dashboard address when it is set" do
+    config = configuration("base_url" => "https://hub.example.com", "dashboard_url" => " https://beszel.example.com/ ")
+
+    assert_equal "https://beszel.example.com/", config.source_link_address
+  end
+
+  test "the source link falls back to the hub address when the dashboard address is empty" do
+    assert_equal "https://hub.example.com", configuration("base_url" => "https://hub.example.com", "dashboard_url" => "").source_link_address
+  end
+
+  test "the source link is nil for an address that is not a web address" do
+    assert_nil configuration("base_url" => "https://hub.example.com", "dashboard_url" => "javascript:alert(1)").source_link_address
+    assert_nil configuration("base_url" => "ftp://hub.example.com").source_link_address
+  end
+
+  test "the source link is nil when nothing is set" do
+    assert_nil configuration.source_link_address
+  end
+
+  test "the dashboard address is empty by default" do
+    assert_equal "", RubylodeBeszel::Settings::DEFAULTS["dashboard_url"]
+  end
+
   test "numbers are clamped and fall back to the defaults when unreadable" do
     config = configuration("cache_seconds" => "-5", "failure_cache_seconds" => "abc", "timeout_seconds" => "0")
 

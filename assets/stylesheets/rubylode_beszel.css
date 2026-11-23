@@ -101,6 +101,11 @@ body.dark .rubylode-beszel {
   background: var(--rubylode-beszel-unavailable-background);
 }
 
+.rubylode-beszel-source {
+  margin: 0 0 var(--rubylode-beszel-gap);
+  text-align: right;
+}
+
 .rubylode-beszel-hint {
   margin: 0 0 var(--rubylode-beszel-gap);
   color: var(--rubylode-beszel-text-muted);

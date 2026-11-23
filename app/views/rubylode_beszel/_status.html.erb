@@ -18,6 +18,10 @@
     <div class="rubylode-beszel<%= " is-compact" if compact %>">
       <% if show_title %><h3 class="rubylode-beszel-title"><%= block_title %></h3><% end %>
       <% unless on_status_page %><p class="rubylode-beszel-summary is-<%= report.summary_state.to_s.dasherize %>"><%= report.summary %></p><% end %>
+      <% source_link_address = configuration.source_link_address %>
+      <% if source_link_address %>
+        <p class="rubylode-beszel-source"><%= link_to l("rubylode_beszel.source_link"), source_link_address, class: "rubylode-beszel-source-link external" %></p>
+      <% end %>
       <% if report.unavailable? && User.current.admin? %>
         <p class="rubylode-beszel-hint"><%= l("rubylode_beszel.hints.reason", reason: report.failure_reason) %></p>
       <% end %>
