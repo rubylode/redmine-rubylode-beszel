@@ -2,6 +2,13 @@
 
 All notable changes to this plugin. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [2.2.0] - 2026-11-23
+
+### Added
+
+- Every block has an "Open Beszel" link, right-aligned above the table, so a person can open the hub. It also shows when the hub cannot be reached.
+- A "Dashboard link" setting for the address the link opens. Empty means the Beszel address.
+
 ## [2.1.2] - 2026-11-19
 
 ### Changed
@@ -114,6 +121,7 @@ First version.
 - Help on the settings page and in the README: a table of where, how and which setting, with copy-paste snippets for the macro, the My page block, the path list, the partial and the page.
 - A fake Beszel hub in `test/support` for the demo and the tests, a throwaway Redmine on port 3013 (`bin/demo`), unit and integration tests, CI and screenshots.
 
+[2.2.0]: https://github.com/rubylode/redmine-rubylode-beszel/compare/v2.1.2...v2.2.0
 [2.1.2]: https://github.com/rubylode/redmine-rubylode-beszel/compare/v2.1.1...v2.1.2
 [2.1.0]: https://github.com/rubylode/redmine-rubylode-beszel/compare/v2.0.0...v2.1.0
 [2.0.0]: https://github.com/rubylode/redmine-rubylode-beszel/compare/v1.1.1...v2.0.0

@@ -13,7 +13,7 @@ TL;DR: this plugin shows the latest status of the servers a [Beszel](https://bes
 [Redmine](https://www.redmine.org): up or down, when each was last seen, and CPU, memory and disk usage as bars. It comes
 as a wiki macro, a page, a My page block and a partial, and it puts its block on the [Rubylode Status](https://github.com/rubylode/redmine-rubylode-status) page when that plugin is installed.
 
-The hub's login stays in environment variables and the plugin only reads. Version 2.1.2, needs Redmine 5.1 or newer, tested
+The hub's login stays in environment variables and the plugin only reads. Version 2.2.0, needs Redmine 5.1 or newer, tested
 against a fake hub. `docs/roadmap/ROADMAP.md` lists what is not done. Upgrading from 1.x: read the 2.0.0 entry in `CHANGELOG.md`.
 
 ![The status page, one server down](docs/screenshots/status-one-down.png)
@@ -70,6 +70,7 @@ row, which you can delete.
 |---|---|---|
 | Beszel address | empty | For example `https://beszel.example.com`. Empty: the block is shown to administrators only, with a hint. |
 | Email variable, Password variable | `BESZEL_EMAIL`, `BESZEL_PASSWORD` | The NAMES of the environment variables that hold the credentials. They must start with `BESZEL_`. The settings page tells you whether each is set. |
+| Dashboard link | empty | The address the "Open Beszel" link goes to, for example `https://beszel.example.com`. Empty: the link goes to the Beszel address. |
 | Allowed hosts | empty | Hosts that may receive the credentials besides the Beszel address, separated by spaces or commas. |
 | Allow plain http | off | See [Security](#security). |
 | Servers to show | empty | One per line: `Name | system name in Beszel | Description`. The last two may be empty (an empty system name means the same as Name). Lines starting with `#` are ignored. Empty: every system the hub has is shown. |
@@ -85,6 +86,8 @@ Example servers list:
     Backups | backup-1 |
 
 ## Where it shows
+
+Every place draws an "Open Beszel" link, right-aligned above the table, that opens the dashboard address (or the Beszel address when there is none). It also shows when the hub cannot be reached, and not at all while the plugin is not set up.
 
 - Wiki macro: `{{beszel_status}}`, or `{{beszel_status(title=Our servers)}}`. People who may not see it get nothing where it
   stands.
